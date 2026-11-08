@@ -1,0 +1,9 @@
+.tmp/
+.workbuddy/
+__pycache__/
+tools/__pycache__/
+*.pyc
+Thumbs.db
+.DS_Store
+
+assets/img/qrcode-source.png

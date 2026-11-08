@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://gd.ippi.com.cn/sitemap.xml
