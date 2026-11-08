@@ -29,7 +29,14 @@ for name in PAGES:
         if href.startswith(("http", "mailto:", "tel:")):
             continue
         target, _, anchor = href.partition("#")
-        if target and target not in NAV:
+        if not target:
+            continue
+        if target.lower().endswith((".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg",
+                                    ".xml", ".txt", ".pdf", ".ico")):
+            if not os.path.exists(os.path.join(ROOT, target)):
+                problems.append("%s: 资源链接缺失 %s" % (name, href))
+            continue
+        if target not in NAV:
             problems.append("%s: 链接目标不存在 %s" % (name, href))
         if target and os.path.exists(os.path.join(ROOT, target)) and anchor:
             other = BeautifulSoup(open(os.path.join(ROOT, target), encoding="utf-8").read(),
