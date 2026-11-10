@@ -161,7 +161,7 @@ def head(title, desc, keywords):
          "provider": {"@id": org_id}, "areaServed": "中国",
          "description": "纯静态官网最快当天上线，改稿当天发布，全年代运营维护更新；同步提供微信商城小程序搭建。",
          "offers": {"@type": "Offer", "price": "399", "priceCurrency": "CNY",
-                    "description": "限时价，仅限前 10 名且资料齐全；标准价 998 元 / 年"}},
+                    "description": "限时价，仅限每月前 10 名顾客且资料齐全；标准价 998 元 / 年"}},
     ]
     crumbs = [{"@type": "ListItem", "position": 1, "name": "首页", "item": SITE_URL}]
     if page != "index":
@@ -209,7 +209,7 @@ def head(title, desc, keywords):
 
 def topbar():
     return '''<div class="topbar"><div class="container">
-<span><i class="spark"></i><b>限时福利</b>　399 元仅限前 10 名且资料齐全<span class="hide-sm">　|　标准价 998 元 / 年，先看设计稿满意再付款</span></span>
+<span><i class="spark"></i><b>限时福利</b>　399 元仅限每月前 10 名顾客且资料齐全<span class="hide-sm">　|　标准价 998 元 / 年，先看设计稿满意再付款</span></span>
 <a href="contact.html#consult">立即扫码咨询 &rarr;</a>
 </div></div>
 '''
@@ -221,7 +221,8 @@ def navbar():
         for label, url, key in NAV)
     return '''<header class="nav"><div class="container">
 <a class="brand" href="index.html" aria-label="%s 首页">
-<img src="assets/img/logo.png" alt="%s LOGO"><span class="brand-txt"><strong>极站</strong><span>GOSITE</span></span></a>
+<img src="assets/img/logo.png" alt="%s LOGO"><span class="brand-txt"><strong>极站</strong><span>GDiis</span></span></a>
+<span class="brand-slogan">官网快上线 · 全年有人管</span>
 <nav class="nav-menu" aria-label="主导航">%s</nav>
 <a class="btn btn-primary nav-cta" href="contact.html#consult">%s 扫码咨询</a>
 <button class="menu-btn" aria-label="展开导航菜单" aria-expanded="false"><i></i></button>
@@ -236,7 +237,7 @@ def footer():
     return '''<footer class="footer"><div class="container">
 <div class="footer-top">
 <div>
-<a class="brand" href="index.html"><img src="assets/img/logo.png" alt="%s LOGO"><span class="brand-txt"><strong>极站</strong><span>GOSITE</span></span></a>
+<a class="brand" href="index.html"><img src="assets/img/logo.png" alt="%s LOGO"><span class="brand-txt"><strong>极站</strong><span>GDiis</span></span></a>
 <p class="footer-about">%s。纯静态官网最快当天上线，改稿当天发布，全年内容更新有人管；商城小程序同步搭建，让企业在微信里也能把生意做起来。</p>
 <div style="margin-top:18px;display:flex;gap:8px;flex-wrap:wrap;justify-content:center">
 <span class="pill" style="background:rgba(255,255,255,.12);color:#fff;border-color:rgba(255,255,255,.22)">399 元包年</span>
@@ -312,7 +313,7 @@ def qr_card():
 <img src="assets/img/qrcode.png" alt="微信扫码咨询二维码">
 <h4>微信扫码 · 先聊需求</h4>
 <p>扫码说明行业、栏目与上线时间<br>我们出方案与首页设计稿</p>
-<span class="qr-badge">%s 前 10 名：设计满意再付款</span>
+<span class="qr-badge">%s 每月前 10 名：设计满意再付款</span>
 </div>''' % icon("message", 13)
 
 
@@ -326,7 +327,7 @@ def cta_section(title=None, desc=None):
     return '''<section class="section tight"><div class="container">
 <div class="cta-dark reveal"><div class="cta-grid">
 <div>
-<span class="pill" style="background:rgba(255,255,255,.16);color:#fff;border-color:rgba(255,255,255,.3)">%s 限时福利 · 限前 10 名咨询者</span>
+<span class="pill" style="background:rgba(255,255,255,.16);color:#fff;border-color:rgba(255,255,255,.3)">%s 限时福利 · 每月限前 10 名顾客</span>
 <h2 style="margin-top:18px">%s</h2>
 <div class="price-big"><span class="cur">¥</span><span class="num">399</span><span class="unit">/ 年包干</span></div>
 <p style="margin-top:2px;font-weight:800">官网整站 + 全年代运营维护更新</p>
@@ -334,7 +335,7 @@ def cta_section(title=None, desc=None):
 <ul class="cta-checks">%s</ul>
 <div class="cta-actions"><a class="btn btn-white btn-lg" href="pricing.html">%s 查看套餐详情</a>
 <a class="btn btn-outline btn-lg" href="contact.html#consult">%s 扫码咨询</a></div>
-<p class="cta-note">标准价 998 元 / 年；399 元仅限前 10 名且资料齐全的咨询者。设计满意再付款，具体服务清单以咨询确认的方案为准。</p>
+<p class="cta-note">标准价 998 元 / 年；399 元仅限每月前 10 名顾客且资料齐全。设计满意再付款，具体服务清单以咨询确认的方案为准。</p>
 </div>
 %s
 </div></div></div></section>
@@ -421,7 +422,7 @@ def p_index():
 <a class="btn btn-ghost btn-lg" href="cases.html">%s 看真实案例</a></div>
 <div class="hero-trust">
 <div>%s <b>最快当天</b> 可上线</div><div>%s <b>399</b> 元包年</div>
-<div>%s <b>前 10 名</b> 满意再付款</div><div>%s <b>全年</b> 有人管更新</div>
+<div>%s <b>每月前 10 名</b> 满意再付款</div><div>%s <b>全年</b> 有人管更新</div>
 </div></div>
 %s
 </div></div></section>''' % (city_svg(), icon("rocket", 16), icon("arrow", 16),
@@ -495,7 +496,7 @@ def p_index():
                                "流程尽量短，沟通尽量少，把企业要准备的物料压到最少。"),
                        flow([
                            ("微信聊需求", "说清行业、栏目、参考站与上线时间，我们给出方案和报价。", "第 1 步 · 10 分钟"),
-                           ("出首页设计稿", "先出视觉稿与栏目结构，满意了再付款，限前 10 名咨询者。", "第 2 步 · 先看稿"),
+                           ("出首页设计稿", "先出视觉稿与栏目结构，满意了再付款，每月限前 10 名顾客。", "第 2 步 · 先看稿"),
                            ("资料一次收齐", "按清单提供文字、图片、LOGO、联系方式，我们来整理录入。", "第 3 步 · 你只提供资料"),
                            ("静态站上线", "页面制作、移动端适配、域名解析与 HTTPS 配置，最快当天可上线。", "第 4 步 · 当天"),
                            ("全年代运营", "后续改稿、加栏目、发资讯、做活动页，发需求我们来完成。", "第 5 步 · 全年"),
@@ -523,7 +524,7 @@ def p_index():
             ("399 元包年到底包含什么？", "包含纯静态官网整站搭建（首页 + 多个栏目独立页面）、模板化设计、移动端自适应、基础 SEO 结构、域名解析与 HTTPS 协助，以及全年的内容更新代运营服务。域名、备案、第三方接口等第三方费用不含在内，具体清单以咨询确认的方案为准。"),
             ("真的能当天上线吗？", "在资料齐备、栏目结构确认的前提下，标准展示型官网最快当天即可上线。若涉及大量资料整理或额外定制页面，时间会在方案阶段一并说明。"),
             ("上线后想改内容怎么办？", "直接在微信里把要改的文字、图片或新栏目发过来，我们改好即发布，不需要你自己进后台操作，一般改动当天完成。"),
-            ("「设计满意再付款」怎么算？", "前 10 名咨询者先看首页设计稿与栏目方案，确认满意后再付款进入制作；不满意可以继续沟通调整，也可以不做。"),
+            ("「设计满意再付款」怎么算？", "每月前 10 名顾客先看首页设计稿与栏目方案，确认满意后再付款进入制作；不满意可以继续沟通调整，也可以不做。"),
         ]),
         '<div class="reveal" style="display:flex;justify-content:center">' + qr_card() + '</div>'))
     return "".join(b)
@@ -800,7 +801,7 @@ def p_cases():
     galleries = [(c["name"], c["stem"], c["gtag"]) for c in CASES]
     gal = []
     for gname, stem, gtag in galleries:
-        shots = [(stem + ".png", "PC 首页", "wide"), (stem + "-pc2.jpg", "PC 内页", "wide"),
+        shots = [(stem + ".png", "PC 完整首屏", "wide"),
                  (stem + "-m1.jpg", "手机首页", "phone"), (stem + "-m2.jpg", "手机内页", "phone")]
         imgs = "".join('<a class="shot %s" href="assets/cases/%s" target="_blank" rel="noopener"><img src="assets/cases/%s" alt="%s %s" loading="lazy"><span>%s</span></a>' % (cls, f, f, gname, label, label)
                        for f, label, cls in shots)
@@ -809,7 +810,7 @@ def p_cases():
 %s
 %s
 </div></section>''' % (sechead("SCREENS / 多端实拍", 'PC 与手机，<span class="grad">都经得起看</span>',
-                               "7 个案例，每个都附 PC 端与手机端实拍截图，点击可查看原图，看看栏目在两种屏幕上怎么落地。"),
+                               "每个案例都附完整 PC 首屏与两张手机页面实拍，点击可查看原图，看看栏目在两种屏幕上怎么落地。"),
                        "".join(gal)))
 
     b.append(cta_section('你的官网，<span style="color:#ffe27a">也可以这样清楚</span>',
@@ -887,8 +888,8 @@ def p_service():
 def p_pricing():
     b = []
     b.append(pagehero("价格套餐", '<span class="pink">399 元包年</span>，官网和全年维护一起算',
-                      "价格简单，服务不打折。标准价 998 元 / 年；399 元仅限前 10 名且资料齐全的咨询者，先看设计稿，满意再付款。",
-                      [("399 元 / 年", ""), ("标准价 998 / 年", ""), ("设计满意再付款", "pink"), ("前 10 名且资料齐全", "orange")],
+                      "价格简单，服务不打折。标准价 998 元 / 年；399 元仅限每月前 10 名顾客且资料齐全，先看设计稿，满意再付款。",
+                      [("399 元 / 年", ""), ("标准价 998 / 年", ""), ("设计满意再付款", "pink"), ("每月前 10 名顾客且资料齐全", "orange")],
                       "PRICING"))
 
     b.append('''<section class="section tight"><div class="container">
@@ -898,7 +899,7 @@ def p_pricing():
 <h3 class="h3" style="font-size:23px;margin-top:18px">极站官网包年 · 限时价</h3>
 <div class="price-big" style="color:var(--blue-deep);margin-top:6px"><span class="cur">¥</span><span class="num" style="background:linear-gradient(100deg,#1668ff,#e2157f);-webkit-background-clip:text;background-clip:text;color:transparent">399</span><span class="unit" style="color:var(--muted)">/ 年</span></div>
 <p class="price-std">标准价 <s>¥998 / 年</s></p>
-<span class="pill orange" style="margin-top:10px">仅限前 10 名且资料齐全</span>
+<span class="pill orange" style="margin-top:10px">仅限每月前 10 名顾客且资料齐全</span>
 <p style="color:var(--muted);font-size:13px;margin-top:14px">官网整站搭建 + 全年代运营维护更新</p>
 <div style="margin-top:20px">%s</div>
 <div style="margin-top:24px"><a class="btn btn-primary btn-lg" href="contact.html#consult">%s 微信扫码咨询</a></div>
@@ -929,7 +930,7 @@ def p_pricing():
         "微信分享物料、官网二维码与整站备份",
     ]), icon("qr", 16), icon("tag", 13), checklist([
         "官网整站与全年代运营，交付内容同限时价", "资料不齐可先搭框架、后补内容",
-        "不限前 10 名，随时可咨询开通", "域名解析、HTTPS 与基础 SEO 协助",
+        "不限名额，随时可咨询开通", "域名解析、HTTPS 与基础 SEO 协助",
         "可与商城小程序组合成整体方案",
     ]), icon("cart", 13), checklist([
         "可视化拖拽装修，界面自由 DIY", "行业模板 + 功能组件，快速搭起可用版本",
@@ -941,11 +942,11 @@ def p_pricing():
 %s
 <div class="grid g3">
 <div class="card glass reveal"><span class="num">01</span><div class="ico">%s</div><h3 class="h3">先沟通，不先收钱</h3><p>微信说清行业、栏目、参考站与上线时间，我们给方案和报价。</p></div>
-<div class="card glass reveal d1"><span class="num">02</span><div class="ico pink">%s</div><h3 class="h3">先看设计稿</h3><p>出首页视觉稿与栏目结构，前 10 名咨询者确认满意后再付款。</p></div>
+<div class="card glass reveal d1"><span class="num">02</span><div class="ico pink">%s</div><h3 class="h3">先看设计稿</h3><p>出首页视觉稿与栏目结构，每月前 10 名顾客确认满意后再付款。</p></div>
 <div class="card glass reveal d2"><span class="num">03</span><div class="ico cyan">%s</div><h3 class="h3">满意再做全站</h3><p>进入资料整理、页面制作与上线流程，后续维护按包年服务执行。</p></div>
 </div>
 <div class="mini-card glass reveal" style="margin-top:22px;text-align:center">
-<p style="font-size:14px;color:var(--ink-2)"><b>设计满意再付款 · 限前 10 名咨询者。</b> 名额以微信咨询先后为准，设计稿阶段可继续沟通调整；不涉及任何预付款或捆绑消费。</p>
+<p style="font-size:14px;color:var(--ink-2)"><b>设计满意再付款 · 每月限前 10 名顾客。</b> 名额以微信咨询先后为准，设计稿阶段可继续沟通调整；不涉及任何预付款或捆绑消费。</p>
 </div>
 </div></section>''' % (sechead("PROMOTION / 限时福利规则", '把风险放在<span class="blue">我们这一边</span>',
                                "先看稿、再付款，是为了让第一次合作不必靠猜。"),
@@ -971,10 +972,10 @@ def p_pricing():
 %s
 </div></section>''' % (sechead("FAQ / 价格相关", '关于 399 包年，<span class="blue">常被问到</span>'),
                        faq([
-                           ("399 元和 998 元有什么区别？", "服务内容一致，都是官网整站 + 全年代运营维护更新。399 元是限时价，仅限前 10 名且资料齐全的咨询者；标准价 998 元 / 年不限名额，资料可以分批补齐，先搭框架、后补内容。"),
+                           ("399 元和 998 元有什么区别？", "服务内容一致，都是官网整站 + 全年代运营维护更新。399 元是限时价，仅限每月前 10 名顾客且资料齐全；标准价 998 元 / 年不限名额，资料可以分批补齐，先搭框架、后补内容。"),
                            ("399 元是首年价还是每年都一样？", "按年计费，续费价格与当年服务范围会在方案里一次说清，不做低价引流后临时加价。"),
                            ("一年里能改多少次？", "日常内容更新不限按次计费，按实际需求随时提；涉及大规模改版或新增大量页面的情况，会在方案阶段说明处理方式。"),
-                           ("设计稿不满意怎么办？", "前 10 名咨询者先看稿再付款，设计稿阶段可以继续沟通调整，也可以选择不做，不产生费用。"),
+                           ("设计稿不满意怎么办？", "每月前 10 名顾客先看稿再付款，设计稿阶段可以继续沟通调整，也可以选择不做，不产生费用。"),
                            ("可以先只做官网，之后再加小程序吗？", "可以。官网先上线，后续需要交易、预约、会员时再按功能范围出小程序方案，两边内容可统一维护。"),
                            ("需要提供什么资料？", "企业简介、业务与栏目文字、图片素材、LOGO、联系方式与参考站点；清单会在沟通后一次给到，整理录入由我们完成。"),
                        ])))
@@ -986,7 +987,7 @@ def p_pricing():
 def p_contact():
     b = []
     b.append(pagehero("联系我们", '先聊 10 分钟，<span class="blue">把官网的事定下来</span>',
-                      "微信扫码说明行业、栏目与上线时间，我们出方案与首页设计稿；前 10 名咨询者设计满意再付款。",
+                      "微信扫码说明行业、栏目与上线时间，我们出方案与首页设计稿；每月前 10 名顾客设计满意再付款。",
                       [("微信扫码咨询", ""), ("先看设计稿", "pink"), ("最快当天可上线", ""), ("工作日响应", "orange")],
                       "CONTACT"))
 
@@ -1027,7 +1028,7 @@ def p_contact():
                             icon("checkcircle"), icon("checkcircle"), icon("checkcircle"), icon("checkcircle")))
 
     b.append('''<section class="section tight"><div class="container">%s</div></section>''' % flow([
-        ("扫码加微信", "说明需求，确认是否在前 10 名名额内。", "10 分钟"),
+        ("扫码加微信", "说明需求，确认是否在每月前 10 名名额内。", "10 分钟"),
         ("出方案与设计稿", "栏目结构 + 首页视觉，满意再付款。", "先看稿"),
         ("资料一次收齐", "按清单提供文字图片，我们来整理。", "同步整理"),
         ("官网制作上线", "静态页面、移动端、解析与 HTTPS。", "当天"),
@@ -1077,7 +1078,7 @@ def p_sitemap():
 # ---------------------------------------------------------------- 输出
 PAGES = [
     ("index.html", "AI时代企业官网快上线｜纯静态网站·代运营维护·399元包年",
-     "极站 GOSITE：纯静态企业官网 最快当天上线，改稿当天发布，全年代运营维护更新；同步提供微信商城小程序搭建。399 元包年，设计满意再付款限前 10 名咨询者。",
+     "极站 GOSITE：纯静态企业官网 最快当天上线，改稿当天发布，全年代运营维护更新；同步提供微信商城小程序搭建。399 元包年，设计满意再付款每月限前 10 名顾客。",
      "企业官网建设,纯静态网站,快速上线,网站代运营,网站维护更新,商城小程序,399元包年", "index", p_index),
     ("website.html", "纯静态企业网站建设｜最快当天上线·快速修改优化",
      "纯静态企业官网建设服务：结构清楚、页面秒开、改稿当天发布，主导航每个栏目独立成页，全年代运营维护更新。",
@@ -1092,10 +1093,10 @@ PAGES = [
      "极站服务亮点：最快当天上线、纯静态轻快、修改即发布、全年代运营、搜索与 AI 友好、多端一致、官网小程序一体、安全运维托管更新。",
      "网站代运营,网站维护更新,快速上线,搜索优化,官网维护", "service", p_service),
     ("pricing.html", "价格套餐｜官网399元包年·设计满意再付款",
-     "极站官网包年 399 元：官网整站 + 全年代运营维护更新；设计满意再付款限前 10 名咨询者；商城小程序按需报价。",
+     "极站官网包年 399 元：官网整站 + 全年代运营维护更新；设计满意再付款每月限前 10 名顾客；商城小程序按需报价。",
      "399元包年,网站价格,建站套餐,设计满意付款,官网包年", "pricing", p_pricing),
     ("contact.html", "联系我们｜微信扫码咨询·先看设计稿",
-     "微信扫码咨询极站 GOSITE，说明行业、栏目与上线时间，我们出方案与首页设计稿；前 10 名咨询者设计满意再付款。",
+     "微信扫码咨询极站 GOSITE，说明行业、栏目与上线时间，我们出方案与首页设计稿；每月前 10 名顾客设计满意再付款。",
      "扫码咨询,官网建设咨询,微信咨询,设计满意付款", "contact", p_contact),
     ("sitemap.html", "网站地图｜极站 GOSITE 全部页面入口",
      "极站 GOSITE 网站地图：首页、网站建设、商城小程序、成功案例、服务亮点、价格套餐、联系我们全部页面入口，另提供 sitemap.xml 与 robots.txt。",

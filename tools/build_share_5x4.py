@@ -42,7 +42,7 @@ for t in ["最快当天上线", "改稿当天发布", "设计满意再付款"]:
     d.text((x + 20, 532), t, font=B.font(24, True), fill=B.BLUE)
     x += w + 16
 
-d.text((80, 646), "399 元/年 · 仅限前 10 名且资料齐全",
+d.text((80, 646), "399 元/年 · 每月仅限前 10 名顾客",
        font=B.font(26, True), fill=B.PINK)
 d.text((80, 706), "极速建站 · 企业官网包年", font=B.font(20), fill=B.MUTED)
 

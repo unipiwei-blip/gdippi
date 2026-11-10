@@ -84,14 +84,18 @@ for site in ALL_CASE_SITES:
         problems.append("案例页缺失: %s" % site)
 if cases.count('class="case-card reveal"') != 7:
     problems.append("案例页卡片数不是 7")
-if cases.count('class="shot ') != 28:
-    problems.append("案例页多端截图数不是 28")
+if cases.count('class="shot ') != 21:
+    problems.append("案例页多端截图数不是 21（7 组 × 3 张）")
+if "GDiis" not in index or "brand-slogan" not in index:
+    problems.append("LOGO GDiis / 广告词缺失")
+if "每月前 10 名" not in index:
+    problems.append("每月前 10 名顾客口径缺失")
 if index.count('class="case-card reveal"') != 6:
     problems.append("首页案例卡片数不是 6")
 
 # 标准价套餐与页脚链接
 pricing = open(os.path.join(ROOT, "pricing.html"), encoding="utf-8").read()
-for kw in ["998", "标准价", "仅限前 10 名且资料齐全", "标准版"]:
+for kw in ["998", "标准价", "每月前 10 名顾客", "标准版"]:
     if kw not in pricing:
         problems.append("价格页缺失: %s" % kw)
 for site in ALL_CASE_SITES:

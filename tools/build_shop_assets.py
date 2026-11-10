@@ -107,7 +107,7 @@ def make_main():
         rounded(d, (x, y + 18, x + w, y + 62), 22, (235, 244, 255))
         d.text((x + 17, y + 26), t, font=font(21, True), fill=BLUE)
         x += w + 14
-    d.text((76, 648), "399 元 / 年 · 仅限前 10 名且资料齐全", font=font(21, True), fill=PINK)
+    d.text((76, 648), "399 元 / 年 · 每月仅限前 10 名顾客", font=font(21, True), fill=PINK)
     footer_line(d)
     img.convert("RGB").save(os.path.join(OUT, "main.png"), "PNG", optimize=True)
     print("main.png")
@@ -153,7 +153,7 @@ def make_detail():
         x = 52 + i * 225
         rounded(d, (x, 486, x + 208, 540), 26, (255, 255, 255, 235))
         d.text((x + 20, 499), t, font=font(20, True), fill=BLUE)
-    d.text((52, 618), "399 元 / 年 · 仅限前 10 名且资料齐全", font=font(24, True), fill=(255, 226, 122))
+    d.text((52, 618), "399 元 / 年 · 每月仅限前 10 名顾客", font=font(24, True), fill=(255, 226, 122))
     y = 720
 
     def section(eyebrow, title, y, subtitle=None):
@@ -232,7 +232,7 @@ def make_detail():
     y = section("05 / 价格与保障", "399 元 / 年，先看设计稿", y + 16)
     y = card(y, "价格说明", [
         "一口价 399 元 / 年：官网整站 + 全年维护更新",
-        "399 元为限时价，仅限前 10 名且资料齐全的咨询者",
+        "399 元为限时价，每月仅限前 10 名顾客且资料齐全",
         "先看首页设计稿，满意后再付款",
         "域名、备案等第三方费用另计，方案阶段一次说清",
     ], PINK)
@@ -289,7 +289,7 @@ if __name__ == "__main__":
     make_sub(4, "合作保障", "先看到再决定", "设计满意再付款",
              ["微信沟通需求，先出首页视觉稿与栏目结构",
               "确认满意后再付款进入制作",
-              "限前 10 名且资料齐全的咨询者",
+              "每月限前 10 名顾客且资料齐全",
               "第三方费用在方案阶段一次说清"],
              "399 元 / 年 · 官网整站 + 全年维护")
     make_detail()
