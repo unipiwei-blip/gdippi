@@ -5,6 +5,7 @@
 import io
 import os
 import datetime
+import glob
 import zipfile
 from bs4 import BeautifulSoup
 
@@ -15,7 +16,7 @@ os.makedirs(DIST, exist_ok=True)
 PAGES = ["index.html", "website.html", "miniprogram.html", "cases.html",
          "service.html", "pricing.html", "contact.html", "sitemap.html"]
 
-site_files = set(PAGES)
+site_files = set(os.path.basename(p) for p in glob.glob(os.path.join(ROOT, "*.html")))
 for page in PAGES:
     soup = BeautifulSoup(io.open(os.path.join(ROOT, page), encoding="utf-8").read(),
                          "html.parser")

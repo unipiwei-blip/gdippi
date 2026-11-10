@@ -6,6 +6,7 @@
 """
 import os
 import json
+from case_details import CASE_DETAILS
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BRAND = "极站 GOSITE"
@@ -165,7 +166,8 @@ def head(title, desc, keywords):
     ]
     crumbs = [{"@type": "ListItem", "position": 1, "name": "首页", "item": SITE_URL}]
     if page != "index":
-        label = next((t for t, u, k in NAV if k == page), "网站地图")
+        label = (next((c["name"] for c in CASES if c["stem"] == page), None)
+                 or next((t for t, u, k in NAV if k == page), "网站地图"))
         crumbs.append({"@type": "ListItem", "position": 2, "name": label, "item": url})
     graph.append({"@type": "BreadcrumbList", "itemListElement": crumbs})
     ld = json.dumps({"@context": "https://schema.org", "@graph": graph},
@@ -357,8 +359,8 @@ def case_card(img, name, url, tag, points, desc, no):
 <div class="case-body">
 <div class="case-meta"><span class="tagx">%s</span><span class="url">%s</span></div>
 <h3><a href="%s" target="_blank" rel="noopener">%s</a></h3><p>%s</p><div class="case-points">%s</div>
-<div class="case-foot"><span class="no">CASE %s</span><a class="link-more" href="%s" target="_blank" rel="noopener">查看线上站点 %s</a></div>
-</div></article>''' % (img, name, url, name, icon("arrow", 13), tag, url, url, name, desc, pts, no, url, icon("arrow", 14))
+<div class="case-foot"><span class="no">CASE %s</span><a class="link-more" href="%s.html">设计讲解 %s</a></div>
+</div></article>''' % (img, name, url, name, icon("arrow", 13), tag, url, url, name, desc, pts, no, img, icon("arrow", 14))
 
 
 def flow(items):
@@ -760,6 +762,76 @@ def p_miniprogram():
     return "".join(b)
 
 
+def case_gallery(c, show_head=True):
+    """左侧两张 PC 上下叠放，右侧两张手机并列"""
+    stem = c["stem"]
+    pc = [(stem + ".png", "PC 首页"), (stem + "-pc2.jpg", "PC 内页")]
+    mb = [(stem + "-m1.jpg", "手机首页"), (stem + "-m2.jpg", "手机内页")]
+
+    def shot(f, label, cls):
+        return ('<a class="shot %s" href="assets/cases/%s" target="_blank" rel="noopener">'
+                '<img src="assets/cases/%s" alt="%s %s" loading="lazy"><span>%s</span></a>'
+                % (cls, f, f, c["name"], label, label))
+
+    head = ('<div class="gallery-head"><span class="pill">%s</span><h3 class="h3">%s</h3></div>'
+            % (c["gtag"], c["name"])) if show_head else ""
+    return '''<div class="gallery-item glass reveal">%s
+<div class="gallery-grid">
+<div class="gallery-side gallery-pc">%s</div>
+<div class="gallery-side gallery-mobile">%s</div>
+</div></div>''' % (head,
+        "".join(shot(f, l, "wide") for f, l in pc),
+        "".join(shot(f, l, "mobile") for f, l in mb))
+
+
+def p_case_detail(c):
+    d = CASE_DETAILS[c["stem"]]
+    b = []
+    b.append(pagehero("设计讲解", c["name"] + ' <span class="blue">设计讲解</span>',
+                      d["lead"],
+                      [(c["gtag"], ""), ("PC / 手机实拍", "pink"), ("构思 · 框架 · 风格 · 配色 · SEO", "")],
+                      "CASE STUDY"))
+    b.append('''<div class="container" style="text-align:center;margin-top:-16px">
+<a class="btn btn-ghost" href="%s" target="_blank" rel="noopener">%s 访问 %s 官网</a></div>'''
+              % (c["url"], icon("arrow", 15), c["name"]))
+
+    b.append('''<section class="section tight"><div class="container">
+%s
+%s
+</div></section>''' % (sechead("SCREENS / 站点实拍", 'PC 与手机，<span class="grad">一起看</span>',
+                               "左侧为 PC 端首页与内页，右侧为手机端首页与内页，点击可查看原图。"),
+                       case_gallery(c, show_head=False)))
+
+    items = [
+        ("构思与定位", "rocket", "", d["idea"]),
+        ("框架结构", "layout", "cyan", d["frame"]),
+        ("设计风格", "pen", "pink", d["style"]),
+        ("色彩搭配", "spark", "orange", d["color"]),
+        ("SEO 与收录", "search", "", d["seo"]),
+        ("整体剖析", "eye", "cyan", d["review"]),
+    ]
+    cells = "".join('''<article class="card glass reveal d%d"><div class="ico %s">%s</div>
+<h3 class="h3">%s</h3><p>%s</p></article>'''
+                    % (i % 4, color, icon(ic), title, text)
+                    for i, (title, ic, color, text) in enumerate(items))
+    b.append('''<section class="section tight"><div class="container">
+%s
+<div class="grid g2">%s</div>
+</div></section>''' % (sechead("ANALYSIS / 设计剖析", '把一个网站，<span class="grad">拆开来看</span>',
+                               "从构思到框架、风格、配色与 SEO，逐项拆解这个站点为什么这样做。"), cells))
+
+    b.append('''<section class="section tight"><div class="container">
+<div class="mini-card glass reveal" style="text-align:center">
+<h4 style="margin-bottom:12px">%s 站点关键点</h4>
+%s
+<div style="margin-top:24px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+<a class="btn btn-ghost" href="cases.html">返回全部案例</a>
+<a class="btn btn-primary" href="%s" target="_blank" rel="noopener">访问原站</a>
+</div></div></div></section>''' % (icon("tag", 18), taglist(c["points"]), c["url"]))
+    b.append(cta_section())
+    return "".join(b)
+
+
 # ---------------------------------------------------------------- 成功案例
 def p_cases():
     b = []
@@ -798,20 +870,12 @@ def p_cases():
                        icon("store", 18),
                        taglist(["商品多规格", "拼团 / 秒杀", "优惠券 / 积分", "分销裂变", "会员卡", "多门店",
                                 "店内点餐", "预约报名", "万能表单", "手机客服"])))
-    galleries = [(c["name"], c["stem"], c["gtag"]) for c in CASES]
-    gal = []
-    for gname, stem, gtag in galleries:
-        shots = [(stem + ".png", "PC 完整首屏", "wide"),
-                 (stem + "-m1.jpg", "手机首页", "mobile"), (stem + "-m2.jpg", "手机内页", "mobile")]
-        imgs = "".join('<a class="shot %s" href="assets/cases/%s" target="_blank" rel="noopener"><img src="assets/cases/%s" alt="%s %s" loading="lazy"><span>%s</span></a>' % (cls, f, f, gname, label, label)
-                       for f, label, cls in shots)
-        gal.append('<div class="gallery-item glass reveal"><div class="gallery-head"><span class="pill">%s</span><h3 class="h3">%s</h3></div><div class="gallery-grid">%s</div></div>' % (gtag, gname, imgs))
+    gal = "".join(case_gallery(c) for c in CASES)
     b.append('''<section class="section tight"><div class="container">
 %s
 %s
 </div></section>''' % (sechead("SCREENS / 多端实拍", 'PC 与手机，<span class="grad">都经得起看</span>',
-                               "每个案例都附完整 PC 首屏与两张手机页面实拍，点击可查看原图，看看栏目在两种屏幕上怎么落地。"),
-                       "".join(gal)))
+                               "每个案例都附 PC 端首页/内页与手机端首页/内页实拍，点击可查看原图。"), gal))
 
     b.append(cta_section('你的官网，<span style="color:#ffe27a">也可以这样清楚</span>',
                          "扫码发来行业、参考栏目与资料，我们按同样的结构方法出首页设计稿，满意再付款。"))
@@ -1071,6 +1135,14 @@ def p_sitemap():
 <p style="color:var(--muted);font-size:13.5px;margin-top:8px"><a href="sitemap.xml" style="color:var(--blue);font-weight:800">sitemap.xml</a>　·　<a href="robots.txt" style="color:var(--blue);font-weight:800">robots.txt</a></p>
 </div></div></section>''' % (sechead("SITE MAP / 全部页面", '每个栏目，<span class="grad">都有独立页面</span>',
                               "点击任意卡片进入对应栏目；也可以直接访问 XML 站点地图与 robots 文件。"), cells))
+    detail_links = "".join('<span><a href="%s.html">%s · 设计讲解</a></span>' % (c["stem"], c["name"])
+                           for c in CASES)
+    b.append('''<section class="section tight"><div class="container">
+%s
+<div class="mini-card glass reveal" style="text-align:center">
+<div class="tag-list" style="justify-content:center">%s</div>
+</div></div></section>''' % (sechead("CASE STUDIES / 设计讲解", '逐个案例，<span class="blue">拆开看</span>',
+                               "7 个站点的构思、框架结构、设计风格、色彩搭配、SEO 与整体剖析。"), detail_links))
     b.append(cta_section())
     return "".join(b)
 
@@ -1102,6 +1174,17 @@ PAGES = [
      "极站 GOSITE 网站地图：首页、网站建设、商城小程序、成功案例、服务亮点、价格套餐、联系我们全部页面入口，另提供 sitemap.xml 与 robots.txt。",
      "网站地图,站点地图,sitemap,极站 GOSITE", "sitemap", p_sitemap),
 ]
+
+
+for _i, _c in enumerate(CASES):
+    PAGES.append((
+        _c["stem"] + ".html",
+        _c["name"] + " 网站设计讲解｜构思·框架·风格·配色·SEO",
+        _c["name"] + " 网站设计讲解：站点构思、框架结构、设计风格、色彩搭配与 SEO 拆解，附 PC 端与手机端实拍截图。",
+        "网站设计讲解,网站剖析,框架结构,色彩搭配,SEO," + _c["name"],
+        _c["stem"],
+        (lambda i=_i: p_case_detail(CASES[i])),
+    ))
 
 
 def main():

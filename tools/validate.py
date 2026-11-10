@@ -7,6 +7,7 @@ from bs4 import BeautifulSoup
 ROOT = r"D:\项目管理文件夹\2026-11-08-11-48-17"
 PAGES = ["index.html", "website.html", "miniprogram.html", "cases.html",
          "service.html", "pricing.html", "contact.html", "sitemap.html"]
+PAGES += ["case-shanghui.html", "case-cailie.html", "case-baydea.html", "case-jianzhuo.html", "case-guanxiang.html", "case-niling.html", "case-leiyiming.html"]
 NAV = set(PAGES) | {"sitemap.xml", "robots.txt", "CNAME"}
 ALL_CASE_SITES = ["zyyous.com", "91cailie.com", "baydea.com", "dgjzkj.com",
                   "touzs.com", "365ls.cn", "oals.cn"]
@@ -84,8 +85,14 @@ for site in ALL_CASE_SITES:
         problems.append("案例页缺失: %s" % site)
 if cases.count('class="case-card reveal"') != 7:
     problems.append("案例页卡片数不是 7")
-if cases.count('class="shot ') != 21:
-    problems.append("案例页多端截图数不是 21（7 组 × 3 张）")
+if cases.count('class="shot ') != 28:
+    problems.append("案例页多端截图数不是 28（7 组 × 4 张）")
+if cases.count('>设计讲解 ') != 7 or index.count('>设计讲解 ') != 6:
+    problems.append("案例卡设计讲解入口数不对")
+for stem in [c for c in ("case-shanghui", "case-cailie", "case-baydea", "case-jianzhuo",
+                         "case-guanxiang", "case-niling", "case-leiyiming")]:
+    if not os.path.exists(os.path.join(ROOT, stem + ".html")):
+        problems.append("缺少设计讲解页: " + stem)
 if "GDiis" not in index or "brand-slogan" not in index:
     problems.append("LOGO GDiis / 广告词缺失")
 if "每月前 10 名" not in index:

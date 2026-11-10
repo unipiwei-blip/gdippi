@@ -19,6 +19,7 @@ PAGES = [
     ("contact.html", "0.7", "monthly"),
     ("sitemap.html", "0.5", "monthly"),
 ]
+PAGES += [("case-shanghui.html", "0.7", "monthly"), ("case-cailie.html", "0.7", "monthly"), ("case-baydea.html", "0.7", "monthly"), ("case-jianzhuo.html", "0.7", "monthly"), ("case-guanxiang.html", "0.7", "monthly"), ("case-niling.html", "0.7", "monthly"), ("case-leiyiming.html", "0.7", "monthly")]
 
 FONT_BOLD = "C:/Windows/Fonts/msyhbd.ttc"
 FONT_REG = "C:/Windows/Fonts/msyh.ttc"

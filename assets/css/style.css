@@ -582,3 +582,22 @@ table.tbl th,table.tbl td{text-align:center}
 /* 第九轮补充2：窄屏 PC 图按自身比例完整显示，不用固定高度裁切 */
 @media(max-width:1100px){.shot.wide{height:auto}}
 @media(max-width:640px){.shot.wide{height:auto}}
+
+/* ---------- 第十轮：左 PC 上下 / 右手机并列 + 案例讲解页 ---------- */
+.gallery-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;align-items:stretch}
+.gallery-side{display:grid;gap:14px;min-width:0}
+.gallery-pc{grid-template-rows:auto auto}
+.gallery-mobile{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+.shot.wide{aspect-ratio:1440 / 940;height:auto;align-self:start}
+.shot.wide img{object-fit:cover;object-position:center}
+.shot.mobile{height:auto;align-self:stretch}
+.shot.mobile img{object-fit:contain;object-position:center}
+.tag-list a{color:var(--blue-deep);font-weight:700}
+.tag-list a:hover{text-decoration:underline}
+@media(max-width:640px){
+  .gallery-grid{grid-template-columns:1fr;gap:9px}
+  .gallery-side{gap:9px}
+  .gallery-mobile{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+  .shot.mobile{height:220px}
+  .shot.mobile img{object-fit:cover;object-position:top center}
+}
