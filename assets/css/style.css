@@ -501,11 +501,11 @@ table.tbl th,table.tbl td{text-align:center}
 .shot{position:relative;display:flex;flex-direction:column;min-width:0;border-radius:12px;overflow:hidden;background:#eaf2ff;border:1px solid var(--line);transition:.3s}
 .shot:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg)}
 .shot img{flex:1;width:100%;min-height:190px;object-fit:cover;object-position:top center;display:block}
-.shot.phone img{min-height:250px}
+.shot.mobile img{min-height:250px}
 .shot span{position:absolute;left:10px;bottom:10px;background:rgba(9,36,90,.72);color:#fff;font-size:11px;font-weight:800;padding:5px 10px;border-radius:7px}
 @media(max-width:1100px){
   .gallery-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .shot.phone img{min-height:300px}
+  .shot.mobile img{min-height:300px}
   .mall-grid{grid-template-columns:repeat(3,1fr)}
   .mall-stack{height:340px}
   .mall-stack .ms-item{width:158px;height:260px;left:calc(2% + var(--i) * 15%)}
@@ -516,7 +516,7 @@ table.tbl th,table.tbl td{text-align:center}
   .mall-grid{grid-template-columns:repeat(2,1fr)}
   .gallery-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
   .shot img{min-height:130px}
-  .shot.phone img{min-height:200px}
+  .shot.mobile img{min-height:200px}
   .gallery-item{padding:16px}
 }
 
@@ -532,17 +532,53 @@ table.tbl th,table.tbl td{text-align:center}
 .gallery-grid{grid-template-columns:minmax(0,2fr) minmax(0,1fr) minmax(0,1fr)}
 .shot{display:block;height:300px}
 .shot img{display:block;flex:none;width:100%;height:100%;min-height:0;object-fit:contain;object-position:center;background:#f2f7ff}
-.shot.phone img{object-fit:cover;object-position:top center;min-height:0}
+.shot.mobile img{object-fit:cover;object-position:top center;min-height:0}
 @media(max-width:1100px){
   .brand-slogan{display:none}
   .gallery-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
   .shot.wide{grid-column:1/-1;height:250px}
-  .shot.phone{height:320px}
-  .shot img,.shot.phone img{min-height:0}
+  .shot.mobile{height:320px}
+  .shot img,.shot.mobile img{min-height:0}
 }
 @media(max-width:640px){
   .gallery-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
   .shot.wide{grid-column:1/-1;height:170px}
-  .shot.phone{height:220px}
-  .shot img,.shot.phone img{min-height:0}
+  .shot.mobile{height:220px}
+  .shot img,.shot.mobile img{min-height:0}
 }
+
+/* ---------- 第九轮：实拍区间距对称 / PC 完整无多余背景 ---------- */
+.gallery-grid{
+  grid-template-columns:minmax(0,2fr) minmax(0,1fr) minmax(0,1fr);
+  gap:14px;justify-items:stretch;align-items:stretch;
+}
+.shot{
+  width:100%;height:auto;min-height:0;
+  border:0;border-radius:12px;background:transparent;box-shadow:none;
+  z-index:auto;display:block;overflow:hidden;
+}
+.shot.wide{aspect-ratio:1440 / 940;align-self:start}
+.shot.mobile{align-self:stretch}
+.shot img{
+  display:block;width:100%;height:100%;min-height:0;
+  object-fit:cover;object-position:top center;background:transparent;
+}
+.shot.wide img{object-fit:cover;object-position:center}
+@media(max-width:1100px){
+  .gallery-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .shot.wide{grid-column:1/-1}
+  .shot.mobile{height:320px}
+}
+@media(max-width:640px){
+  .gallery-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+  .shot.wide{grid-column:1/-1}
+  .shot.mobile{height:220px}
+}
+
+/* 第九轮补充：手机图绝对填充，三张等高且 PC 完整无留白 */
+.shot.mobile{position:relative}
+.shot.mobile img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top center}
+
+/* 第九轮补充2：窄屏 PC 图按自身比例完整显示，不用固定高度裁切 */
+@media(max-width:1100px){.shot.wide{height:auto}}
+@media(max-width:640px){.shot.wide{height:auto}}

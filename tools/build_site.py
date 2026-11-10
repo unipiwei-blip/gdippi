@@ -802,7 +802,7 @@ def p_cases():
     gal = []
     for gname, stem, gtag in galleries:
         shots = [(stem + ".png", "PC 完整首屏", "wide"),
-                 (stem + "-m1.jpg", "手机首页", "phone"), (stem + "-m2.jpg", "手机内页", "phone")]
+                 (stem + "-m1.jpg", "手机首页", "mobile"), (stem + "-m2.jpg", "手机内页", "mobile")]
         imgs = "".join('<a class="shot %s" href="assets/cases/%s" target="_blank" rel="noopener"><img src="assets/cases/%s" alt="%s %s" loading="lazy"><span>%s</span></a>' % (cls, f, f, gname, label, label)
                        for f, label, cls in shots)
         gal.append('<div class="gallery-item glass reveal"><div class="gallery-head"><span class="pill">%s</span><h3 class="h3">%s</h3></div><div class="gallery-grid">%s</div></div>' % (gtag, gname, imgs))
