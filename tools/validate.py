@@ -8,6 +8,8 @@ ROOT = r"D:\项目管理文件夹\2026-11-08-11-48-17"
 PAGES = ["index.html", "website.html", "miniprogram.html", "cases.html",
          "service.html", "pricing.html", "contact.html", "sitemap.html"]
 NAV = set(PAGES) | {"sitemap.xml", "robots.txt", "CNAME"}
+ALL_CASE_SITES = ["zyyous.com", "91cailie.com", "baydea.com", "dgjzkj.com",
+                  "touzs.com", "365ls.cn", "oals.cn"]
 problems = []
 
 for name in PAGES:
@@ -77,16 +79,22 @@ for kw in ["399", "前 10 名", "设计满意再付款", "最快当天上线", "
 
 # 案例页三站链接
 cases = open(os.path.join(ROOT, "cases.html"), encoding="utf-8").read()
-for site in ["zyyous.com", "91cailie.com", "baydea.com"]:
-    if site not in cases:
+for site in ALL_CASE_SITES:
+    if "https://www.%s/" % site not in cases:
         problems.append("案例页缺失: %s" % site)
+if cases.count('class="case-card reveal"') != 7:
+    problems.append("案例页卡片数不是 7")
+if cases.count('class="shot ') != 28:
+    problems.append("案例页多端截图数不是 28")
+if index.count('class="case-card reveal"') != 6:
+    problems.append("首页案例卡片数不是 6")
 
 # 标准价套餐与页脚链接
 pricing = open(os.path.join(ROOT, "pricing.html"), encoding="utf-8").read()
 for kw in ["998", "标准价", "仅限前 10 名且资料齐全", "标准版"]:
     if kw not in pricing:
         problems.append("价格页缺失: %s" % kw)
-for site in ["zyyous.com", "91cailie.com", "baydea.com"]:
+for site in ALL_CASE_SITES:
     if "https://www.%s/" % site not in index:
         problems.append("首页友情链接缺失: %s" % site)
 if "https://www.gdiis.com" not in index:

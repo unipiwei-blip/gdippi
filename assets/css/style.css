@@ -519,3 +519,10 @@ table.tbl th,table.tbl td{text-align:center}
   .shot.phone img{min-height:200px}
   .gallery-item{padding:16px}
 }
+
+/* ---------- 第七轮：7 个案例索引与末尾卡居中 ---------- */
+.case-index{display:flex;flex-wrap:wrap;justify-content:center;gap:9px;margin:0 0 34px}
+.case-index .pill{transition:.2s}
+.case-index .pill:hover{background:var(--blue);color:#fff;border-color:var(--blue)}
+.grid.g3>.case-card:last-child:nth-child(3n+1){grid-column:2}
+@media(max-width:900px){.grid.g3>.case-card:last-child:nth-child(3n+1){grid-column:auto}}

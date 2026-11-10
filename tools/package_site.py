@@ -4,6 +4,7 @@
 """
 import io
 import os
+import datetime
 import zipfile
 from bs4 import BeautifulSoup
 
@@ -40,7 +41,8 @@ missing = [f for f in site_files if not os.path.isfile(os.path.join(ROOT, f))]
 if missing:
     raise SystemExit("缺失文件: %s" % missing)
 
-site_zip = os.path.join(DIST, "极速建站-网站完整包-20261108.zip")
+stamp = datetime.date.today().strftime("%Y%m%d")
+site_zip = os.path.join(DIST, "极速建站-网站完整包-%s.zip" % stamp)
 with zipfile.ZipFile(site_zip, "w", zipfile.ZIP_DEFLATED, compresslevel=9) as z:
     for rel in sorted(site_files):
         z.write(os.path.join(ROOT, rel), arcname=rel)
@@ -55,7 +57,7 @@ for base, _dirs, files in os.walk(shop_root):
             arc = os.path.relpath(full, shop_root).replace("\\", "/")
             shop_files.append((full, arc))
 
-shop_zip = os.path.join(DIST, "极速建站-商品素材包-20261108.zip")
+shop_zip = os.path.join(DIST, "极速建站-商品素材包-%s.zip" % stamp)
 with zipfile.ZipFile(shop_zip, "w", zipfile.ZIP_DEFLATED, compresslevel=9) as z:
     for full, arc in sorted(shop_files, key=lambda x: x[1]):
         z.write(full, arcname=arc)
