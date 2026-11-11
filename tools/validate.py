@@ -142,6 +142,17 @@ robots = open(os.path.join(ROOT, "robots.txt"), encoding="utf-8").read()
 if "Sitemap: " + SITE_URL + "sitemap.xml" not in robots or "Allow: /assets/" not in robots:
     problems.append("robots.txt 缺少 Sitemap / assets 放行规则")
 
+# 站长平台验证文件：必须原样放在根目录、可被公开抓取，但不写入 sitemap（避免被索引）
+verify_files = [f for f in os.listdir(ROOT) if re.match(r"^google[a-f0-9]+\.html$", f)]
+for vf in verify_files:
+    content = open(os.path.join(ROOT, vf), encoding="utf-8").read().strip()
+    if content != "google-site-verification: " + vf:
+        problems.append("%s: 站长验证文件内容不正确" % vf)
+    if SITE_URL + vf in xml_urls:
+        problems.append("%s: 验证文件不应写入 sitemap.xml" % vf)
+    if "Disallow: /" + vf in robots:
+        problems.append("%s: robots.txt 不可屏蔽验证文件" % vf)
+
 for name in PAGES:
     raw = open(os.path.join(ROOT, name), encoding="utf-8").read()
     soup = BeautifulSoup(raw, "html.parser")
