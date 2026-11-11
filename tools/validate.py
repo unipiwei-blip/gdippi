@@ -124,6 +124,66 @@ for kw in ["分销模块", "拼团", "限时抢购", "积分", "会员", "多门
     if kw not in mini:
         problems.append("小程序页缺失能力: %s" % kw)
 
+# ---------------------------------------------------------------- 第十一轮：SEO / 网站地图深度校验
+import json
+
+DISALLOWED = ["独立成页", "独立页面", "独立详情页", "各自成页", "单独成页", "各有专页",
+              "每项都有专页", "点击任意", "进入详情页", "上线前建议", "匿名化示例",
+              "本页", "本站", "本栏目", "一句话说清", "一句话讲清", "按需进入",
+              "写清能做什么", "都有独立页面", "页面独立", "假官网"]
+SITE_URL = "https://gd.ippi.com.cn/"
+
+xml_raw = open(os.path.join(ROOT, "sitemap.xml"), encoding="utf-8").read()
+xml_urls = re.findall(r"<loc>(.*?)</loc>", xml_raw)
+expect_urls = {SITE_URL} | {SITE_URL + p for p in PAGES if p != "index.html"}
+if len(xml_urls) != len(expect_urls) or set(xml_urls) != expect_urls:
+    problems.append("sitemap.xml 的 URL 集合与实际页面不一致（%d 条）" % len(xml_urls))
+robots = open(os.path.join(ROOT, "robots.txt"), encoding="utf-8").read()
+if "Sitemap: " + SITE_URL + "sitemap.xml" not in robots or "Allow: /assets/" not in robots:
+    problems.append("robots.txt 缺少 Sitemap / assets 放行规则")
+
+for name in PAGES:
+    raw = open(os.path.join(ROOT, name), encoding="utf-8").read()
+    soup = BeautifulSoup(raw, "html.parser")
+    canon = soup.find("link", rel="canonical")
+    want = SITE_URL + ("" if name == "index.html" else name)
+    if not canon or canon.get("href") != want:
+        problems.append("%s: canonical 不正确" % name)
+    d = soup.find("meta", attrs={"name": "description"})
+    if d and not (70 <= len(d.get("content", "")) <= 200):
+        problems.append("%s: description 长度 %d，建议 70-200" % (name, len(d.get("content", ""))))
+    if len(soup.find_all("h1")) != 1:
+        problems.append("%s: h1 数量不是 1" % name)
+    for im in soup.find_all("img"):
+        if not im.get("alt"):
+            problems.append("%s: 图片缺 alt %s" % (name, im.get("src", "")))
+    txt_soup = BeautifulSoup(raw, "html.parser")
+    for sc in txt_soup.find_all("script"):
+        sc.decompose()
+    visible = txt_soup.get_text(" ") + " " + (d.get("content", "") if d else "")
+    for w in DISALLOWED:
+        if w in visible:
+            problems.append("%s: 文案含禁用表述「%s」" % (name, w))
+    ld = soup.find("script", attrs={"type": "application/ld+json"})
+    if not ld:
+        problems.append("%s: 缺 JSON-LD" % name)
+        continue
+    graph = json.loads(ld.string).get("@graph", [])
+    types = {g.get("@type") for g in graph}
+    for need in ["Organization", "WebSite", "Service", "WebPage", "BreadcrumbList"]:
+        if need not in types:
+            problems.append("%s: JSON-LD 缺 %s" % (name, need))
+    if name.startswith("case-"):
+        ogt = soup.find("meta", attrs={"property": "og:type"})
+        if not ogt or ogt.get("content") != "article":
+            problems.append("%s: 案例页 og:type 应为 article" % name)
+        bc = next((g for g in graph if g.get("@type") == "BreadcrumbList"), {})
+        if len(bc.get("itemListElement", [])) != 3:
+            problems.append("%s: 面包屑应为 3 级" % name)
+    if name in ("index.html", "pricing.html") and "FAQPage" not in types:
+        problems.append("%s: 缺 FAQPage 结构化数据" % name)
+
+
 print("页面数:", len(PAGES))
 print("问题数:", len(problems))
 for p in problems:

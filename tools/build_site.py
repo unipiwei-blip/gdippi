@@ -6,6 +6,7 @@
 """
 import os
 import json
+import datetime
 from case_details import CASE_DETAILS
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -31,8 +32,8 @@ CASES = [
         "stem": "case-baydea", "name": "湾区（广东）数字经济研究院", "url": "https://www.baydea.com/",
         "tag": "研究院 / 智库", "gtag": "研究院 / 智库",
         "points": ["五大业务板块", "服务项目", "生态网络", "研究院动态", "合作洽谈"],
-        "short": "把数字经济、产业学院、跨境电商、人工智能、国际教育五大板块拆成清晰栏目与独立页面。",
-        "desc": "面向政校企的数字经济研究院。把数字经济、产业学院、跨境电商、人工智能、国际教育拆成五大板块与独立页面，服务项目、生态网络、动态与合作入口层层展开。",
+        "short": "把数字经济、产业学院、跨境电商、人工智能、国际教育五大板块拆成清晰栏目，逐层呈现。",
+        "desc": "面向政校企的数字经济研究院。把数字经济、产业学院、跨境电商、人工智能、国际教育拆成五大板块，服务项目、生态网络、动态与合作入口层层展开。",
     },
     {
         "stem": "case-jianzhuo", "name": "建卓科技", "url": "https://www.dgjzkj.com/",
@@ -146,11 +147,16 @@ NAV = [
 ]
 
 
+FAQ_COLLECTOR = {}
+
+
 def head(title, desc, keywords):
     page = PAGE_KEY
     url = SITE_URL + ("" if page == "index" else page + ".html")
     og = SITE_URL + "assets/img/og-image.png"
     org_id = SITE_URL + "#organization"
+    is_case = page.startswith("case-")
+    today = datetime.date.today().isoformat()
     graph = [
         {"@type": "Organization", "@id": org_id, "name": BRAND, "url": SITE_URL,
          "logo": {"@type": "ImageObject", "url": SITE_URL + "assets/img/logo.png"},
@@ -162,18 +168,37 @@ def head(title, desc, keywords):
          "provider": {"@id": org_id}, "areaServed": "中国",
          "description": "纯静态官网最快当天上线，改稿当天发布，全年代运营维护更新；同步提供微信商城小程序搭建。",
          "offers": {"@type": "Offer", "price": "399", "priceCurrency": "CNY",
+                    "url": SITE_URL + "pricing.html",
+                    "availability": "https://schema.org/InStock",
                     "description": "限时价，仅限每月前 10 名顾客且资料齐全；标准价 998 元 / 年"}},
+        {"@type": "WebPage", "@id": url + "#webpage", "url": url,
+         "name": title + " | " + BRAND, "description": desc,
+         "isPartOf": {"@id": SITE_URL + "#website"}, "about": {"@id": org_id},
+         "inLanguage": "zh-CN", "dateModified": today,
+         "primaryImageOfPage": {"@type": "ImageObject", "url": og}},
     ]
     crumbs = [{"@type": "ListItem", "position": 1, "name": "首页", "item": SITE_URL}]
-    if page != "index":
-        label = (next((c["name"] for c in CASES if c["stem"] == page), None)
-                 or next((t for t, u, k in NAV if k == page), "网站地图"))
+    if is_case:
+        crumbs.append({"@type": "ListItem", "position": 2, "name": "成功案例",
+                       "item": SITE_URL + "cases.html"})
+        crumbs.append({"@type": "ListItem", "position": 3,
+                       "name": next(c["name"] for c in CASES if c["stem"] == page) + " 设计讲解",
+                       "item": url})
+    elif page != "index":
+        label = next((t for t, u, k in NAV if k == page), "网站地图")
         crumbs.append({"@type": "ListItem", "position": 2, "name": label, "item": url})
     graph.append({"@type": "BreadcrumbList", "itemListElement": crumbs})
+    if page in FAQ_COLLECTOR:
+        graph.append({"@type": "FAQPage", "mainEntity": [
+            {"@type": "Question", "name": q,
+             "acceptedAnswer": {"@type": "Answer", "text": a}}
+            for q, a in FAQ_COLLECTOR[page]]})
     ld = json.dumps({"@context": "https://schema.org", "@graph": graph},
                     ensure_ascii=False, separators=(",", ":"))
     d = dict(title=title, brand=BRAND, desc=desc, keywords=keywords,
-             url=url, og=og, ld=ld, page=page)
+             url=url, og=og, ld=ld, page=page,
+             ogtype="article" if is_case else "website",
+             ogalt=title + " | " + BRAND)
     return '''<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -183,17 +208,20 @@ def head(title, desc, keywords):
 <meta name="description" content="%(desc)s">
 <meta name="keywords" content="%(keywords)s">
 <meta name="author" content="%(brand)s">
-<meta name="robots" content="index,follow,max-image-preview:large">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
 <link rel="canonical" href="%(url)s">
-<meta property="og:type" content="website">
+<link rel="sitemap" type="application/xml" title="Sitemap" href="sitemap.xml">
+<meta property="og:type" content="%(ogtype)s">
 <meta property="og:site_name" content="%(brand)s">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:title" content="%(title)s | %(brand)s">
 <meta property="og:description" content="%(desc)s">
 <meta property="og:url" content="%(url)s">
 <meta property="og:image" content="%(og)s">
+<meta property="og:image:type" content="image/png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="%(ogalt)s">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="%(title)s | %(brand)s">
 <meta name="twitter:description" content="%(desc)s">
@@ -345,6 +373,7 @@ def cta_section(title=None, desc=None):
 
 
 def faq(items):
+    FAQ_COLLECTOR[PAGE_KEY] = items
     return '<div class="faq">' + "".join(
         '<details class="faq-item reveal"><summary>%s</summary><p>%s</p></details>' % (q, a)
         for q, a in items) + '</div>'
@@ -446,7 +475,7 @@ def p_index():
 <div class="card glass reveal d2"><div class="ico cyan">%s</div><h3 class="h3">官网之外，补上小程序</h3><p>需要卖货、预约、会员、分销时，同步搭建微信商城小程序，让官网和微信里的生意连成一体。</p></div>
 </div>
 <div class="keywords">%s</div>
-</div></section>''' % (sechead("ONE LINE / 一句话说清", '建站不是交付一个文件，<span class="grad">是长期有人管</span>',
+</div></section>''' % (sechead("POSITIONING / 服务定位", '建站不是交付一个文件，<span class="grad">是长期有人管</span>',
                                "极站把「快速上线」和「代运营维护更新」打包成一项包年服务，适合不想养技术团队、又希望官网始终在线、内容常新的中小企业与机构。"),
                        icon("layers"), icon("bolt"), icon("cart"),
                        "".join('<span>%s</span>' % t for t in [
@@ -473,7 +502,7 @@ def p_index():
 <div class="grid g2">
 <article class="biz-card glass blue reveal"><div class="radial"></div>
 <div class="biz-ico">%s</div><div class="sub">FAST STATIC WEBSITE</div><h3>纯静态企业官网</h3>
-<p>把企业介绍、业务板块、案例、资讯、联系方式做成结构清楚的独立页面，导航栏目各自成页，PC 与手机都好看、都好找。</p>
+<p>企业介绍、业务板块、案例、资讯与联系方式按主题清晰呈现，PC 与手机端阅读顺畅，重点信息一目了然。</p>
 <ul class="biz-list">
 <li>%s 最快当天上线，栏目页面一次搭齐</li><li>%s 纯静态架构，秒开、易收录、更安全</li>
 <li>%s 文字图片随时改，改稿当天发布</li><li>%s 全年维护更新由我们代运营</li></ul>
@@ -523,7 +552,7 @@ def p_index():
         sechead("FAQ / 常见问题", '下单前，<span class="pink">先把话说清楚</span>',
                 "关于价格、上线时间、后期修改，这里是最常被问到的几个问题。", center=False),
         faq([
-            ("399 元包年到底包含什么？", "包含纯静态官网整站搭建（首页 + 多个栏目独立页面）、模板化设计、移动端自适应、基础 SEO 结构、域名解析与 HTTPS 协助，以及全年的内容更新代运营服务。域名、备案、第三方接口等第三方费用不含在内，具体清单以咨询确认的方案为准。"),
+            ("399 元包年到底包含什么？", "包含纯静态官网整站搭建（首页 + 多个栏目页面）、模板化设计、移动端自适应、基础 SEO 结构、域名解析与 HTTPS 协助，以及全年的内容更新代运营服务。域名、备案、第三方接口等第三方费用不含在内，具体清单以咨询确认的方案为准。"),
             ("真的能当天上线吗？", "在资料齐备、栏目结构确认的前提下，标准展示型官网最快当天即可上线。若涉及大量资料整理或额外定制页面，时间会在方案阶段一并说明。"),
             ("上线后想改内容怎么办？", "直接在微信里把要改的文字、图片或新栏目发过来，我们改好即发布，不需要你自己进后台操作，一般改动当天完成。"),
             ("「设计满意再付款」怎么算？", "每月前 10 名顾客先看首页设计稿与栏目方案，确认满意后再付款进入制作；不满意可以继续沟通调整，也可以不做。"),
@@ -537,7 +566,7 @@ def p_website():
     b = []
     b.append(pagehero("网站建设", '纯静态官网，把上线时间<span class="blue">从几周压到几天</span>',
                       "结构清楚、页面秒开、改稿即发布、全年有人维护。适合企业、商协会、研究院、培训机构等以展示与获客为主的官网需求。",
-                      [("纯静态架构", ""), ("最快当天可上线", "pink"), ("导航栏目独立页面", ""), ("全年代运营", "orange")],
+                      [("纯静态架构", ""), ("最快当天可上线", "pink"), ("栏目结构清晰", ""), ("全年代运营", "orange")],
                       "FAST STATIC WEBSITE"))
     b.append('''<section class="section tight"><div class="container"><div class="split">
 <div class="reveal"><div class="eyebrow">WHY STATIC / 为什么坚持纯静态</div>
@@ -580,12 +609,12 @@ def p_website():
     b.append('''<section class="section tight"><div class="container">
 %s
 %s
-</div></section>''' % (sechead("SITE MAP / 站点结构", '主导航每个栏目，<span class="blue">都有独立页面</span>',
-                               "不做只有一个长页面的「假官网」。栏目各自成页，内容能被单独打开、单独收录、单独转发。"),
+</div></section>''' % (sechead("SITE MAP / 站点结构", '栏目划分，<span class="blue">按业务来讲</span>',
+                               "企业介绍、业务服务、案例资讯与联系方式各有清楚的位置，客户关注的信息一眼能找到。"),
                        cards([
-                           ("layout", "", "首页", "一句话说清你是谁、做什么、为什么选你，配主视觉与核心业务入口。"),
+                           ("layout", "", "首页", "机构定位、核心业务与合作价值集中呈现，配主视觉与业务入口。"),
                            ("users", "cyan", "关于我们", "机构简介、发展历程、资质与团队，建立第一层信任。"),
-                           ("grid", "pink", "业务 / 服务板块", "每项业务一个说明区或独立页，把服务内容讲明白。"),
+                           ("grid", "pink", "业务 / 服务板块", "各项业务分区说明，服务范围、流程与成果完整呈现。"),
                            ("eye", "orange", "成功案例", "案例卡片、客户场景与成果展示，可链接到线上站点。"),
                            ("file", "", "新闻 / 资讯", "动态、通知、行业内容持续更新，官网保持活跃。"),
                            ("message", "cyan", "联系我们", "电话、邮箱、地址、二维码与咨询入口，转化路径短。"),
@@ -607,14 +636,14 @@ def p_website():
 
     b.append('''<section class="section tight"><div class="container">
 %s
-<div class="grid g2"><div class="mini-card glass reveal"><h4>%s 改一句话，怎么做</h4>
-<p>微信发来「把首页第三段的电话改成新号码，加一张活动海报」，我们改好后直接发布到线上，通常当天完成，不需要你进任何后台。</p>
+<div class="grid g2"><div class="mini-card glass reveal"><h4>%s 文字与图片日常更新</h4>
+<p>文字、图片、联系方式与活动内容的调整由服务团队完成并发布，通常当天生效，无需自行操作后台。</p>
 <div style="margin-top:16px">%s</div></div>
-<div class="mini-card glass reveal d1"><h4>%s 加一个栏目，怎么做</h4>
-<p>说明栏目名称与内容，我们按现有视觉规范新增独立页面并挂到主导航，保持全站风格统一，同时更新站点地图与分享信息。</p>
+<div class="mini-card glass reveal d1"><h4>%s 栏目内容扩展</h4>
+<p>新增业务方向时，栏目内容沿用统一的视觉规范与信息层级，桌面端与手机端同步呈现，站点地图与分享信息一并更新。</p>
 <div style="margin-top:16px">%s</div></div></div>
 </div></section>''' % (sechead("QUICK EDIT / 快速修改优化", '官网要跟着业务走，<span class="blue">不能一年不动</span>',
-                               "「快速修改优化」不是一句口号，而是包年服务里最常用的日常动作。"),
+                               "包年服务覆盖日常内容调整，官网可以跟着业务节奏持续更新。"),
                        icon("pen"), taglist(["换文案", "换图片", "加栏目", "发资讯", "上活动页", "改联系方式"]),
                        icon("layers"), taglist(["统一视觉规范", "导航同步更新", "移动端同步", "收录信息同步"])))
 
@@ -753,7 +782,7 @@ def p_miniprogram():
 %s
 <div class="mall-stack reveal">%s</div>
 <div class="mall-grid" style="margin-top:26px">%s</div>
-<p style="font-size:12.5px;color:var(--muted);margin-top:18px;text-align:center">以上为常见小程序商城界面版式示意，用于展示可搭建的页面样式；点击任意图片可查看大图。</p>
+<p style="font-size:12.5px;color:var(--muted);margin-top:18px;text-align:center">以上为常见小程序商城界面版式，涵盖商品、订单、营销与会员等经营场景。</p>
 </div></section>''' % (sechead("SHOWCASE / 商城界面样板", '商城长什么样，<span class="grad">先看这些版式</span>',
                                "首页、分类、列表、详情、服务型商城——不同行业的页面结构，都可以用组件搭出来。"), stack, grid))
 
@@ -836,7 +865,7 @@ def p_case_detail(c):
 def p_cases():
     b = []
     b.append(pagehero("成功案例", '七类机构，<span class="blue">同一套上线方法</span>',
-                      "以下 7 个均为可公开访问的线上站点案例。每个案例都围绕「内容讲清楚、栏目独立成页、手机好用、后续好更新」来组织，名称均可点击直达站点。",
+                      "以下 7 个均为可公开访问的线上站点案例，覆盖商协会、教育实训、智库、节能科技、投融资咨询、生命科技与育人平台，栏目划分清楚，手机端阅读顺畅，内容持续更新，站点名称可直达线上访问。",
                       [("7 个线上案例", ""), ("PC / 手机实拍", "pink"), ("可点击访问", "orange")],
                       "SELECTED WORK"))
     b.append('''<section class="section tight"><div class="container">
@@ -853,18 +882,17 @@ def p_cases():
 %s
 <div class="grid g3">
 <div class="card glass reveal"><div class="ico">%s</div><h3 class="h3">先定栏目，再做页面</h3><p>商会的六大服务体系、研究院的五大板块、节能企业的一体服务链、咨询公司的九项业务，都先拆成清晰的信息骨架，再落到视觉设计。</p></div>
-<div class="card glass reveal d1"><div class="ico pink">%s</div><h3 class="h3">每个栏目独立成页</h3><p>主导航不是锚点跳转，而是各自有独立页面与独立标题描述，便于收录、便于转发、便于后续单独改版。</p></div>
+<div class="card glass reveal d1"><div class="ico pink">%s</div><h3 class="h3">栏目层次分明</h3><p>服务内容按主题分层展开，标题与描述各有侧重，机构业务、动态资讯与合作入口都能被快速找到。</p></div>
 <div class="card glass reveal d2"><div class="ico cyan">%s</div><h3 class="h3">把转化入口做短</h3><p>咨询二维码、联系电话、预约试学、合作洽谈、线上商城入口都放在用户做决定的位置，而不是埋在页脚。</p></div>
 </div></div></section>''' % (sechead("METHOD / 案例里的共同点", '不是七套设计，<span class="grad">是同一套内容结构</span>',
-                                    "行业不同，方法一致：结构先行、页面独立、更新方便。"),
+                                    "行业不同，方法一致：信息分层清楚、重点业务突出、内容持续更新。"),
                             icon("grid"), icon("layers"), icon("qr")))
 
     b.append('''<section class="section tight"><div class="container">
 %s
 <div class="mini-card glass reveal"><h4 style="margin-bottom:6px">%s 小程序可覆盖的经营场景</h4>
 <p style="color:var(--muted);font-size:13.5px;line-height:1.9">餐饮点餐、零售商城、家政同城、教育培训、美业预约、婚纱摄影、旅游攻略、健身休闲、连锁多门店、社区团购等，均可按组件组合出对应的商城或预约小程序。</p>
-%s
-<p style="font-size:12.5px;color:var(--muted);margin-top:16px">以上为行业方案方向（依据小程序搭建平台公开能力整理），并非本站自有客户名单。</p></div>
+%s</div>
 </div></section>''' % (sechead("SCENES / 场景参考", '需要交易时，<span class="pink">官网可以接上小程序</span>',
                                "展示型官网与商城小程序的常见组合方向。"),
                        icon("store", 18),
@@ -988,7 +1016,7 @@ def p_pricing():
 <div style="margin-top:24px"><a class="btn btn-ghost btn-lg" href="miniprogram.html">%s 查看小程序能力</a></div>
 </article>
 </div></div></section>''' % (icon("gift", 13), checklist([
-        "纯静态官网整站（首页 + 多个栏目独立页面）", "模板化视觉设计与移动端自适应",
+        "纯静态官网整站（首页 + 多个栏目页面）", "模板化视觉设计与移动端自适应",
         "文字、图片、LOGO 等资料整理录入", "域名解析、HTTPS 与 CDN 静态托管协助",
         "基础 SEO 结构：标题 / 描述 / 站点地图", "全年内容更新代运营与访问巡检",
         "微信分享物料、官网二维码与整站备份",
@@ -1022,7 +1050,7 @@ def p_pricing():
 </div></section>''' % (sechead("SCOPE / 费用边界", '包含什么、不包含什么，<span class="pink">写清楚</span>',
                                "避免合作过程中出现「这个要另外加钱」的尴尬。"),
                        table(["项目", "399 元包年", "说明"], [
-                           ["官网页面制作", '<span class="yes">包含</span>', "首页及约定的栏目独立页面，按确认的栏目结构交付"],
+                           ["官网页面制作", '<span class="yes">包含</span>', "首页及约定的栏目内容，按确认的信息结构交付"],
                            ["全年内容更新", '<span class="yes">包含</span>', "文字、图片、栏目、资讯与活动页的日常更新"],
                            ["移动端与基础 SEO", '<span class="yes">包含</span>', "响应式适配、标题描述、站点地图与分享信息"],
                            ["域名 / 备案", '<span class="no">第三方费用另计</span>', "可协助操作，费用由第三方收取"],
@@ -1111,18 +1139,19 @@ def p_contact():
 
 def p_sitemap():
     b = []
-    b.append(pagehero("网站地图", '全站页面，<span class="blue">一页看全</span>',
-                      "这里列出极站 GOSITE 的全部栏目页面，方便快速查找，也方便搜索引擎收录。",
-                      [("7 个主栏目", ""), ("独立页面", "pink"), ("XML 站点地图", "")], "SITE MAP"))
+    b.append(pagehero("网站地图", '全站内容，<span class="blue">一页看全</span>',
+                      "极站 GOSITE 的栏目、服务与案例设计讲解集中在这里，共 15 个页面，方便快速查找。",
+                      [("8 个栏目页", ""), ("7 个设计讲解", "pink"), ("XML 站点地图", "orange")],
+                      "SITE MAP"))
     entries = [
-        ("首页", "index.html", "品牌主张、两大主营业务、服务亮点、真实案例与限时套餐", "layout"),
-        ("网站建设", "website.html", "纯静态官网、对比表、站点结构、交付标准与上线流程", "code"),
-        ("商城小程序", "miniprogram.html", "能力矩阵、平台优势、行业场景与官网联动", "cart"),
-        ("成功案例", "cases.html", "7 个线上站点案例与 PC / 手机多端实拍", "eye"),
-        ("服务亮点", "service.html", "八条服务标准、代运营清单与成本对比", "spark"),
-        ("价格套餐", "pricing.html", "399 限时价、998 标准价、商城小程序按需报价", "tag"),
-        ("联系我们", "contact.html", "品牌介绍、沟通清单、上线流程与微信扫码咨询", "message"),
-        ("网站地图", "sitemap.html", "本页：全站页面入口与搜索引擎文件", "grid"),
+        ("首页", "index.html", "品牌定位、主营业务与案例", "layout"),
+        ("网站建设", "website.html", "纯静态官网、方式对比与交付标准", "code"),
+        ("商城小程序", "miniprogram.html", "能力矩阵、行业场景与官网联动", "cart"),
+        ("成功案例", "cases.html", "7 个线上站点与 PC / 手机实拍", "eye"),
+        ("服务亮点", "service.html", "八条服务标准与代运营清单", "spark"),
+        ("价格套餐", "pricing.html", "399 限时价与 998 标准价", "tag"),
+        ("联系我们", "contact.html", "品牌介绍、上线流程与扫码咨询", "message"),
+        ("网站地图", "sitemap.html", "全站栏目与设计讲解索引", "grid"),
     ]
     cells = "".join('''<a class="card glass reveal d%d" href="%s" style="display:block">
 <div class="ico">%s</div><h3 class="h3">%s</h3><p>%s</p></a>''' % (i % 4, url, icon(ic), title, desc)
@@ -1130,49 +1159,58 @@ def p_sitemap():
     b.append('''<section class="section tight"><div class="container">
 %s
 <div class="grid g4">%s</div>
-<div class="mini-card glass reveal" style="margin-top:24px;text-align:center">
-<h4>给搜索引擎的文件</h4>
-<p style="color:var(--muted);font-size:13.5px;margin-top:8px"><a href="sitemap.xml" style="color:var(--blue);font-weight:800">sitemap.xml</a>　·　<a href="robots.txt" style="color:var(--blue);font-weight:800">robots.txt</a></p>
-</div></div></section>''' % (sechead("SITE MAP / 全部页面", '每个栏目，<span class="grad">都有独立页面</span>',
-                              "点击任意卡片进入对应栏目；也可以直接访问 XML 站点地图与 robots 文件。"), cells))
-    detail_links = "".join('<span><a href="%s.html">%s · 设计讲解</a></span>' % (c["stem"], c["name"])
-                           for c in CASES)
+</div></section>''' % (sechead("SITE MAP / 栏目页面", '八个栏目，<span class="grad">各有主题</span>',
+                              "企业官网建设、商城小程序、案例、服务与价格资讯按主题分布。"), cells))
+
+    detail_cards = "".join(
+        '''<a class="card glass reveal d%d" href="%s.html" style="display:block">
+<div class="ico">%s</div><h3 class="h3">%s</h3><p>%s · 设计讲解</p></a>'''
+        % (i % 4, c["stem"], icon("eye"), c["name"], c["gtag"])
+        for i, c in enumerate(CASES))
+    detail_cards += ('''<a class="card glass reveal" href="cases.html" style="display:block">
+<div class="ico">%s</div><h3 class="h3">全部案例</h3><p>7 个站点完整实拍</p></a>''' % icon("grid"))
     b.append('''<section class="section tight"><div class="container">
 %s
+<div class="grid g4">%s</div>
+</div></section>''' % (sechead("CASE STUDIES / 设计讲解", '七个站点，<span class="blue">逐站剖析</span>',
+                              "构思与定位、框架结构、设计风格、色彩搭配、SEO 与整体剖析，均附 PC 端与手机端实拍。"),
+                         detail_cards))
+
+    b.append('''<section class="section tight"><div class="container">
 <div class="mini-card glass reveal" style="text-align:center">
-<div class="tag-list" style="justify-content:center">%s</div>
-</div></div></section>''' % (sechead("CASE STUDIES / 设计讲解", '逐个案例，<span class="blue">拆开看</span>',
-                               "7 个站点的构思、框架结构、设计风格、色彩搭配、SEO 与整体剖析。"), detail_links))
+<h4>给搜索引擎的文件</h4>
+<p style="color:var(--muted);font-size:13.5px;margin-top:8px"><a href="sitemap.xml" style="color:var(--blue);font-weight:800">sitemap.xml</a>　·　<a href="robots.txt" style="color:var(--blue);font-weight:800">robots.txt</a></p>
+</div></div></section>''')
     b.append(cta_section())
     return "".join(b)
 
 
 # ---------------------------------------------------------------- 输出
 PAGES = [
-    ("index.html", "AI时代企业官网快上线｜纯静态网站·代运营维护·399元包年",
-     "极站 GOSITE：纯静态企业官网 最快当天上线，改稿当天发布，全年代运营维护更新；同步提供微信商城小程序搭建。399 元包年，设计满意再付款每月限前 10 名顾客。",
-     "企业官网建设,纯静态网站,快速上线,网站代运营,网站维护更新,商城小程序,399元包年", "index", p_index),
-    ("website.html", "纯静态企业网站建设｜最快当天上线·快速修改优化",
-     "纯静态企业官网建设服务：结构清楚、页面秒开、改稿当天发布，主导航每个栏目独立成页，全年代运营维护更新。",
-     "纯静态官网,企业网站建设,快速上线,网站快速修改,响应式官网,基础SEO", "website", p_website),
+    ("index.html", "企业官网快速上线｜纯静态建站·全年代运营·399元包年",
+     "极站 GOSITE 提供纯静态企业官网建设与全年代运营维护：栏目清楚、页面秒开、改稿当天发布，资料齐备最快当天上线；同步提供微信商城小程序搭建。399 元/年包年，标准价 998 元/年，每月前 10 名顾客可先看设计稿满意再付款。",
+     "企业官网建设,纯静态网站,官网快速上线,当天上线,网站代运营,网站维护更新,微信商城小程序,399元包年,建站套餐", "index", p_index),
+    ("website.html", "纯静态企业网站建设｜最快当天上线·改稿当天发布",
+     "纯静态企业官网建设服务：栏目结构清楚、页面秒开、改稿当天发布，PC 与手机端一致呈现，含标题描述、站点地图、图片替代文本等基础 SEO 配置，并提供全年代运营维护更新。适合企业、商协会、研究院与培训机构的展示型官网。",
+     "纯静态官网,企业网站建设,官网快速上线,响应式官网,网站改版,基础SEO,网站代运营,网站维护更新", "website", p_website),
     ("miniprogram.html", "微信商城小程序搭建｜商品·营销·会员·门店",
-     "微信商城小程序可视化搭建：多规格商品、拼团秒杀、优惠券积分、分销、会员卡、多门店、点餐预约与万能表单，我们代搭建代维护。",
-     "商城小程序,微信商城,小程序开发,拼团,分销,会员卡,多门店,点餐预约", "miniprogram", p_miniprogram),
-    ("cases.html", "网站案例｜商会·教育实训·数字经济研究院",
-     "网站案例：广东省湖南攸县商会、才猎天下大数据、湾区（广东）数字经济研究院，展示不同行业的栏目结构与官网上线方法。",
-     "网站案例,商协会官网,教育机构官网,研究院官网,企业官网案例", "cases", p_cases),
+     "微信商城小程序搭建与代维护：多规格商品、订单消息、拼团秒杀、优惠券积分、分销、会员卡、多门店、点餐预约与万能表单，按行业场景组合。首年 9980 元起含设计与上线，次年续费 3980 元/年，可与官网包年一起做。",
+     "商城小程序,微信商城搭建,小程序开发,拼团秒杀,分销,会员卡,多门店,点餐预约,9980元", "miniprogram", p_miniprogram),
+    ("cases.html", "网站案例｜7 个行业官网实拍与设计讲解",
+     "7 个可公开访问的企业官网案例：广东省湖南攸县商会、才猎天下大数据、湾区（广东）数字经济研究院、建卓科技、莞湘投资咨询、逆龄韶华生命科技、雷一鸣工作室，附 PC 端与手机端实拍截图及逐站设计讲解。",
+     "网站案例,商协会官网,教育实训官网,研究院官网,节能科技官网,投融资咨询官网,生命科技官网,官网实拍,网站设计讲解", "cases", p_cases),
     ("service.html", "服务亮点｜官网快上线与全年代运营维护",
-     "极站服务亮点：最快当天上线、纯静态轻快、修改即发布、全年代运营、搜索与 AI 友好、多端一致、官网小程序一体、安全运维托管更新。",
-     "网站代运营,网站维护更新,快速上线,搜索优化,官网维护", "service", p_service),
-    ("pricing.html", "价格套餐｜官网399元包年·设计满意再付款",
-     "极站官网包年 399 元：官网整站 + 全年代运营维护更新；设计满意再付款每月限前 10 名顾客；商城小程序按需报价。",
-     "399元包年,网站价格,建站套餐,设计满意付款,官网包年", "pricing", p_pricing),
+     "极站 GOSITE 服务亮点：最快当天上线、纯静态轻快、修改即发布、全年代运营维护更新、搜索与 AI 友好、多端一致、官网与小程序一体、安全运维托管更新，八条服务标准覆盖官网从上线到长期运营的全过程。",
+     "网站代运营,网站维护更新,官网快速上线,搜索优化,AI可读官网,安全运维,托管更新,建站服务", "service", p_service),
+    ("pricing.html", "价格套餐｜官网399元包年·标准价998元·设计满意再付款",
+     "极站官网包年价格：限时价 399 元/年，仅限每月前 10 名顾客且资料齐全，含官网整站与全年代运营维护更新；标准价 998 元/年不限名额。微信商城小程序首年 9980 元起含设计上线，次年续费 3980 元/年。设计满意再付款。",
+     "399元包年,网站价格,建站套餐,998元标准价,商城小程序价格,9980元,设计满意付款,官网包年", "pricing", p_pricing),
     ("contact.html", "联系我们｜微信扫码咨询·先看设计稿",
-     "微信扫码咨询极站 GOSITE，说明行业、栏目与上线时间，我们出方案与首页设计稿；每月前 10 名顾客设计满意再付款。",
-     "扫码咨询,官网建设咨询,微信咨询,设计满意付款", "contact", p_contact),
-    ("sitemap.html", "网站地图｜极站 GOSITE 全部页面入口",
-     "极站 GOSITE 网站地图：首页、网站建设、商城小程序、成功案例、服务亮点、价格套餐、联系我们全部页面入口，另提供 sitemap.xml 与 robots.txt。",
-     "网站地图,站点地图,sitemap,极站 GOSITE", "sitemap", p_sitemap),
+     "联系极站 GOSITE 咨询企业官网建设与微信商城小程序：说明行业、栏目与期望上线时间，即可获取方案与首页设计稿。每月前 10 名顾客先看稿满意再付款，微信扫码即可开始沟通。",
+     "官网建设咨询,微信扫码咨询,网站设计方案,设计满意付款,建站咨询,小程序搭建咨询", "contact", p_contact),
+    ("sitemap.html", "网站地图｜极站 GOSITE 全部页面与设计讲解索引",
+     "极站 GOSITE 网站地图：首页、网站建设、商城小程序、成功案例、服务亮点、价格套餐、联系我们与网站地图八个栏目入口，另有 7 个线上站点的设计讲解页，覆盖构思、框架、风格、配色与 SEO 剖析；同时提供 sitemap.xml 与 robots.txt。",
+     "网站地图,站点地图,sitemap,极站 GOSITE,网站设计讲解,页面索引,网站案例剖析", "sitemap", p_sitemap),
 ]
 
 
@@ -1180,15 +1218,18 @@ for _i, _c in enumerate(CASES):
     PAGES.append((
         _c["stem"] + ".html",
         _c["name"] + " 网站设计讲解｜构思·框架·风格·配色·SEO",
-        _c["name"] + " 网站设计讲解：站点构思、框架结构、设计风格、色彩搭配与 SEO 拆解，附 PC 端与手机端实拍截图。",
-        "网站设计讲解,网站剖析,框架结构,色彩搭配,SEO," + _c["name"],
+        _c["name"] + " 网站设计讲解：从站点构思与受众定位，到框架结构、设计风格、色彩搭配与 SEO 收录策略逐项拆解，并附 PC 端与手机端实拍截图。极站 GOSITE 案例剖析系列。",
+        "网站设计讲解,网站剖析,框架结构,色彩搭配,网站SEO,官网案例," + _c["name"],
         _c["stem"],
         (lambda i=_i: p_case_detail(CASES[i])),
     ))
 
 
 def main():
+    global PAGE_KEY
     for filename, title, desc, kw, active, builder in PAGES:
+        PAGE_KEY = active
+        FAQ_COLLECTOR.pop(active, None)
         html = wrap(title, desc, kw, active, builder())
         with open(os.path.join(ROOT, filename), "w", encoding="utf-8") as f:
             f.write(html)

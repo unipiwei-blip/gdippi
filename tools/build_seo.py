@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
-"""生成 SEO 与 GitHub Pages 发布文件：分享图 / sitemap.xml / robots.txt / CNAME / .nojekyll"""
+"""生成 SEO 与 GitHub Pages 发布文件：分享图 / sitemap.xml / robots.txt / CNAME / .nojekyll
+
+sitemap lastmod 取各页面文件的真实修改日期；robots 明确放行 assets、屏蔽工具与打包目录。
+"""
 import os
 import datetime
 import numpy as np
@@ -13,11 +16,11 @@ PAGES = [
     ("", "1.0", "daily"),
     ("website.html", "0.9", "weekly"),
     ("miniprogram.html", "0.9", "weekly"),
-    ("cases.html", "0.8", "weekly"),
+    ("cases.html", "0.9", "weekly"),
     ("service.html", "0.8", "weekly"),
     ("pricing.html", "0.9", "weekly"),
     ("contact.html", "0.7", "monthly"),
-    ("sitemap.html", "0.5", "monthly"),
+    ("sitemap.html", "0.4", "monthly"),
 ]
 PAGES += [("case-shanghui.html", "0.7", "monthly"), ("case-cailie.html", "0.7", "monthly"), ("case-baydea.html", "0.7", "monthly"), ("case-jianzhuo.html", "0.7", "monthly"), ("case-guanxiang.html", "0.7", "monthly"), ("case-niling.html", "0.7", "monthly"), ("case-leiyiming.html", "0.7", "monthly")]
 
@@ -78,6 +81,14 @@ def write_text(name, content):
     print("written", name)
 
 
+def file_lastmod(path):
+    """按页面文件的真实修改日期写 lastmod，避免全站同一天造成的失真信号。"""
+    p = os.path.join(ROOT, path or "index.html")
+    if os.path.exists(p):
+        return datetime.date.fromtimestamp(os.path.getmtime(p)).isoformat()
+    return TODAY
+
+
 def main():
     make_og_image()
     lines = ['<?xml version="1.0" encoding="UTF-8"?>',
@@ -85,10 +96,18 @@ def main():
     for path, priority, freq in PAGES:
         lines.append("  <url><loc>%s%s</loc><lastmod>%s</lastmod>"
                      "<changefreq>%s</changefreq><priority>%s</priority></url>"
-                     % (SITE, path, TODAY, freq, priority))
+                     % (SITE, path, file_lastmod(path), freq, priority))
     lines.append("</urlset>")
     write_text("sitemap.xml", "\n".join(lines) + "\n")
-    write_text("robots.txt", "User-agent: *\nAllow: /\n\nSitemap: %ssitemap.xml\n" % SITE)
+    write_text("robots.txt",
+               "User-agent: *\n"
+               "Allow: /\n"
+               "Allow: /assets/\n"
+               "Disallow: /tools/\n"
+               "Disallow: /dist/\n"
+               "\n"
+               "Sitemap: %ssitemap.xml\n"
+               "Host: %s\n" % (SITE, SITE.rstrip("/")))
     write_text("CNAME", "gd.ippi.com.cn\n")
     write_text(".nojekyll", "")
 

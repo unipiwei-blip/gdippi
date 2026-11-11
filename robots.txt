@@ -1,4 +1,8 @@
 User-agent: *
 Allow: /
+Allow: /assets/
+Disallow: /tools/
+Disallow: /dist/
 
 Sitemap: https://gd.ippi.com.cn/sitemap.xml
+Host: https://gd.ippi.com.cn
