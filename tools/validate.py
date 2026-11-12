@@ -195,6 +195,53 @@ for name in PAGES:
         problems.append("%s: 缺 FAQPage 结构化数据" % name)
 
 
+# ---------------------------------------------------------------- 第十二轮：404 / robots / 友链
+FRIEND_LINKS = [
+    ("AI建站-跨境极站", "https://www.gosite.com.cn/"),
+    ("莞促集团", "https://www.guancu.com/"),
+    ("东莞市常平个体私营企业协会", "https://www.ichangping.cn/"),
+]
+p404 = os.path.join(ROOT, "404.html")
+if not os.path.exists(p404):
+    problems.append("缺 404.html")
+else:
+    s404 = open(p404, encoding="utf-8").read()
+    if 'name="robots" content="noindex,follow"' not in s404:
+        problems.append("404.html 缺 noindex,follow")
+    for bad in ['rel="canonical"', 'property="og:', 'name="twitter:',
+                'application/ld+json', 'http-equiv="refresh"',
+                'location.href', 'location.replace', '<meta http-equiv']:
+        if bad in s404:
+            problems.append("404.html 含禁止元素 %s" % bad)
+    for need in ['href="index.html"', 'href="sitemap.html"', 'rel="icon"']:
+        if need not in s404:
+            problems.append("404.html 缺入口/资源 %s" % need)
+    if s404.count("<h1") != 1:
+        problems.append("404.html 的 h1 数量不是 1")
+    for name, url in FRIEND_LINKS:
+        if url not in s404 or name not in s404:
+            problems.append("404.html 页脚缺友情链接 " + name)
+
+for ua in ["User-agent: *", "User-agent: Baiduspider", "User-agent: Googlebot"]:
+    if ua not in robots:
+        problems.append("robots.txt 缺 " + ua)
+if robots.count("Allow: /assets/") != 3:
+    problems.append("robots.txt 未对三个 UA 显式放行 /assets/")
+for kw in ["Host: https://gd.ippi.com.cn", "Sitemap: " + SITE_URL + "sitemap.xml"]:
+    if kw not in robots:
+        problems.append("robots.txt 缺 " + kw)
+if "Disallow: /404" in robots or "404.html" in robots:
+    problems.append("robots.txt 不应屏蔽或特别提及 404.html")
+if "404.html" in xml_raw or "googled740" in xml_raw:
+    problems.append("sitemap.xml 不应包含 404 页或站长验证文件")
+
+page_html = {name: open(os.path.join(ROOT, name), encoding="utf-8").read() for name in PAGES}
+for name, url in FRIEND_LINKS:
+    missing = [p for p, s in page_html.items() if url not in s or name not in s]
+    if missing:
+        problems.append("友情链接 %s 未同步页面: %s" % (name, missing[:4]))
+
+
 print("页面数:", len(PAGES))
 print("问题数:", len(problems))
 for p in problems:

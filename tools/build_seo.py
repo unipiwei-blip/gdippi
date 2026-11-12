@@ -82,7 +82,7 @@ def write_text(name, content):
 
 
 def file_lastmod(path):
-    """按页面文件的真实修改日期写 lastmod，避免全站同一天造成的失真信号。"""
+    """按页面文件的真实修改日期写 lastmod；全站页脚同步后重跑生成器即为生成当天。"""
     p = os.path.join(ROOT, path or "index.html")
     if os.path.exists(p):
         return datetime.date.fromtimestamp(os.path.getmtime(p)).isoformat()
@@ -99,15 +99,16 @@ def main():
                      % (SITE, path, file_lastmod(path), freq, priority))
     lines.append("</urlset>")
     write_text("sitemap.xml", "\n".join(lines) + "\n")
-    write_text("robots.txt",
-               "User-agent: *\n"
-               "Allow: /\n"
-               "Allow: /assets/\n"
-               "Disallow: /tools/\n"
-               "Disallow: /dist/\n"
-               "\n"
-               "Sitemap: %ssitemap.xml\n"
-               "Host: %s\n" % (SITE, SITE.rstrip("/")))
+
+    # 显式放行通用爬虫、百度、谷歌抓取 /assets/；404.html 与站长验证文件不屏蔽
+    agent_block = ("User-agent: %s\n"
+                   "Allow: /\n"
+                   "Allow: /assets/\n"
+                   "Disallow: /tools/\n"
+                   "Disallow: /dist/\n")
+    robots = "\n".join(agent_block % ua for ua in ("*", "Baiduspider", "Googlebot"))
+    robots += "\nSitemap: %ssitemap.xml\nHost: %s\n" % (SITE, SITE.rstrip("/"))
+    write_text("robots.txt", robots)
     write_text("CNAME", "gd.ippi.com.cn\n")
     write_text(".nojekyll", "")
 

@@ -150,6 +150,13 @@ NAV = [
 FAQ_COLLECTOR = {}
 
 
+EXTRA_FRIENDS = [
+    ("AI建站-跨境极站", "https://www.gosite.com.cn/"),
+    ("莞促集团", "https://www.guancu.com/"),
+    ("东莞市常平个体私营企业协会", "https://www.ichangping.cn/"),
+]
+
+
 def head(title, desc, keywords):
     page = PAGE_KEY
     url = SITE_URL + ("" if page == "index" else page + ".html")
@@ -264,6 +271,8 @@ def footer():
     cols = "".join('<li><a href="%s">%s</a></li>' % (u, t) for t, u, k in NAV if k != "index")
     friend_links = "".join('<a href="%s" target="_blank" rel="noopener">%s</a>' % (c["url"], c["name"])
                             for c in CASES)
+    friend_links += "".join('<a href="%s" target="_blank" rel="noopener">%s</a>' % (u, t)
+                            for t, u in EXTRA_FRIENDS)
     return '''<footer class="footer"><div class="container">
 <div class="footer-top">
 <div>
@@ -1185,6 +1194,45 @@ def p_sitemap():
     return "".join(b)
 
 
+def head_404():
+    """404 专用页头：noindex,follow，不写 canonical / OG / JSON-LD，不做自动跳转。"""
+    return '''<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>页面未找到 | 极站 GOSITE</title>
+<meta name="description" content="访问的页面不存在，可返回首页或通过网站地图继续浏览极站 GOSITE 的栏目与案例。">
+<meta name="robots" content="noindex,follow">
+<link rel="icon" href="favicon.ico" type="image/x-icon">
+<link rel="stylesheet" href="assets/css/style.css">
+<script src="assets/js/main.js" defer></script>
+</head>
+<body data-page="404">
+'''
+
+
+def p_404():
+    entries = [
+        ("返回首页", "index.html"), ("网站地图", "sitemap.html"),
+        ("网站建设", "website.html"), ("商城小程序", "miniprogram.html"),
+        ("成功案例", "cases.html"), ("服务亮点", "service.html"),
+        ("价格套餐", "pricing.html"), ("联系我们", "contact.html"),
+    ]
+    links = "".join('<a class="btn btn-ghost" href="%s" style="margin:5px">%s</a>' % (u, t)
+                    for t, u in entries)
+    body = '''<section class="section"><div class="container">
+<div class="mini-card glass reveal" style="text-align:center;padding:64px 30px">
+<div class="eyebrow">404 / PAGE NOT FOUND</div>
+<div style="font-size:96px;font-weight:900;line-height:1.1;background:linear-gradient(100deg,#1a6bff,#e2157f);-webkit-background-clip:text;background-clip:text;color:transparent;margin:10px 0 6px">404</div>
+<h1 class="h2">这个页面没有找到</h1>
+<p class="lead" style="margin:14px auto 0;max-width:620px">链接可能已调整或地址输入有误。可以从下面的入口继续浏览，也可以在网站地图里查看全部栏目与案例。</p>
+<div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:28px">%s</div>
+</div></div></section>''' % links
+    return (head_404() + topbar() + navbar() + "<main>\n" + body +
+            "\n</main>\n" + footer() + "</body>\n</html>\n")
+
+
 # ---------------------------------------------------------------- 输出
 PAGES = [
     ("index.html", "企业官网快速上线｜纯静态建站·全年代运营·399元包年",
@@ -1234,6 +1282,9 @@ def main():
         with open(os.path.join(ROOT, filename), "w", encoding="utf-8") as f:
             f.write(html)
         print("generated", filename, len(html), "bytes")
+    with open(os.path.join(ROOT, "404.html"), "w", encoding="utf-8") as f:
+        f.write(p_404())
+    print("generated 404.html (noindex,follow / 无 canonical·OG·JSON-LD)")
 
 
 if __name__ == "__main__":

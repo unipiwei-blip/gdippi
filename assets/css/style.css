@@ -601,3 +601,16 @@ table.tbl th,table.tbl td{text-align:center}
   .shot.mobile{height:220px}
   .shot.mobile img{object-fit:cover;object-position:top center}
 }
+
+/* ---------- 第十二轮：紧凑页脚（四栏等宽居中不变，桌面端高度控制在 380px 内） ---------- */
+.footer-top{padding:24px 0 16px;gap:26px}
+.footer-about{margin-top:10px;line-height:1.7;font-size:12.5px}
+.footer h4{margin-bottom:10px}
+.footer li{margin-bottom:5px;line-height:1.55}
+.footer-qr{width:92px;height:92px;margin:0 auto 8px;padding:4px}
+.footer-contact{line-height:1.6}
+.footer-contact b{font-size:14px}
+.footer-links{padding:10px 0;gap:6px 12px;font-size:12px}
+.footer-tech{padding:0 0 10px;font-size:12px}
+.footer-tech img{height:28px;padding:4px 7px}
+.footer-bottom{padding:8px 0 10px;font-size:11.5px}
