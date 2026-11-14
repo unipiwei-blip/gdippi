@@ -35,9 +35,9 @@ for extra in ["favicon.ico", "CNAME", ".nojekyll", "robots.txt", "sitemap.xml",
     if os.path.isfile(os.path.join(ROOT, extra)):
         site_files.add(extra)
 
-# 微信分享方图使用 HTTPS 绝对地址，无法被标签属性收集，显式补入
-for _p in glob.glob(os.path.join(ROOT, "assets", "cases", "share-*.jpg")):
-    site_files.add(os.path.relpath(_p, ROOT).replace("\\", "/"))
+# 全站统一微信分享图使用 HTTPS 绝对地址，无法被标签属性收集，显式补入
+if os.path.isfile(os.path.join(ROOT, "assets", "img", "share-site.jpg")):
+    site_files.add("assets/img/share-site.jpg")
 
 # 含个人信息的二维码原图不打包
 site_files.discard("assets/img/qrcode-source.png")

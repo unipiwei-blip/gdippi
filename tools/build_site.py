@@ -158,9 +158,12 @@ EXTRA_FRIENDS = [
 ]
 
 
-def share_image_url(page):
-    """详情页方形分享图的 HTTPS 绝对地址。"""
-    return SITE_URL + "assets/cases/share-" + page[len("case-"):] + ".jpg"
+SHARE_IMAGE_URL = SITE_URL + "assets/img/share-site.jpg"
+
+
+def share_image_url(page=None):
+    """全站统一固定分享图的 HTTPS 绝对地址。"""
+    return SHARE_IMAGE_URL
 
 
 def share_summary(desc, limit=60):
@@ -217,24 +220,23 @@ def head(title, desc, keywords):
             for q, a in FAQ_COLLECTOR[page]]})
     ld = json.dumps({"@context": "https://schema.org", "@graph": graph},
                     ensure_ascii=False, separators=(",", ":"))
-    share_url = share_image_url(page) if is_case else ""
+    share_url = share_image_url()
     short_desc = share_summary(desc) if is_case else desc
-    esc_short = html.escape(short_desc, quote=True) if is_case else desc
-    og_img = share_url if is_case else og
-    og_w, og_h = ("400", "400") if is_case else ("1200", "630")
-    og_itype = "image/jpeg" if is_case else "image/png"
-    itemprop = ""
-    if is_case:
-        itemprop = ('<meta itemprop="name" content="%s">\n'
-                    '<meta itemprop="description" content="%s">\n'
-                    '<meta itemprop="image" content="%s">\n'
-                    % (html.escape(title + " | " + BRAND, quote=True),
-                       esc_short, share_url))
+    esc_short = html.escape(short_desc, quote=True)
+    ogdesc = esc_short if is_case else desc
+    og_img = share_url
+    og_w, og_h = "400", "400"
+    og_itype = "image/jpeg"
+    itemprop = ('<meta itemprop="name" content="%s">\n'
+                '<meta itemprop="description" content="%s">\n'
+                '<meta itemprop="image" content="%s">\n'
+                % (html.escape(title + " | " + BRAND, quote=True),
+                   esc_short, share_url))
     d = dict(title=title, brand=BRAND, desc=desc, keywords=keywords,
              url=url, og=og, ld=ld, page=page,
              ogtype="article" if is_case else "website",
              ogalt=title + " | " + BRAND,
-             ogdesc=esc_short, ogimg=og_img, ogw=og_w, ogh=og_h,
+             ogdesc=ogdesc, ogimg=og_img, ogw=og_w, ogh=og_h,
              ogitype=og_itype, itemprop=itemprop)
     return '''<!DOCTYPE html>
 <html lang="zh-CN">
@@ -342,10 +344,8 @@ def footer():
 def wrap(title, desc, keywords, active, body):
     global PAGE_KEY
     PAGE_KEY = active
-    thumb = ""
-    if active.startswith("case-"):
-        thumb = ('<img class="wx-share-thumb" src="%s" alt="" width="300" height="300" aria-hidden="true">\n'
-                 % share_image_url(active))
+    thumb = ('<img class="wx-share-thumb" src="%s" alt="" width="300" height="300" aria-hidden="true">\n'
+             % share_image_url())
     return (head(title, desc, keywords) + thumb + topbar() + navbar() +
             "<main>\n" + body + "\n</main>\n" + footer() + "</body>\n</html>\n")
 
