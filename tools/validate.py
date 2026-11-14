@@ -166,8 +166,9 @@ for name in PAGES:
     if len(soup.find_all("h1")) != 1:
         problems.append("%s: h1 数量不是 1" % name)
     for im in soup.find_all("img"):
-        if not im.get("alt"):
-            problems.append("%s: 图片缺 alt %s" % (name, im.get("src", "")))
+        # 装饰性图片允许 alt=""（配合 aria-hidden），只要求属性存在
+        if im.get("alt") is None:
+            problems.append("%s: 图片缺 alt 属性 %s" % (name, im.get("src", "")))
     txt_soup = BeautifulSoup(raw, "html.parser")
     for sc in txt_soup.find_all("script"):
         sc.decompose()
@@ -240,6 +241,77 @@ for name, url in FRIEND_LINKS:
     missing = [p for p, s in page_html.items() if url not in s or name not in s]
     if missing:
         problems.append("友情链接 %s 未同步页面: %s" % (name, missing[:4]))
+
+
+# ---------------------------------------------------------------- 第十三轮：微信分享卡片静态兜底
+from PIL import Image
+
+SHARE_STEMS = ["shanghui", "cailie", "baydea", "jianzhuo", "guanxiang", "niling", "leiyiming"]
+detail_pages = [p for p in PAGES if p.startswith("case-")]
+plain_pages = [p for p in PAGES if not p.startswith("case-")] + ["404.html"]
+
+if len(detail_pages) != len(SHARE_STEMS):
+    problems.append("详情页数量与方图数量不一致: %d / %d" % (len(detail_pages), len(SHARE_STEMS)))
+for stem in SHARE_STEMS:
+    p = os.path.join(ROOT, "assets", "cases", "share-%s.jpg" % stem)
+    if not os.path.exists(p):
+        problems.append("缺方形分享图 " + p)
+        continue
+    im = Image.open(p)
+    if im.size != (400, 400) or im.format != "JPEG":
+        problems.append("方图规格不对 %s %s %s" % (p, im.size, im.format))
+    if os.path.getsize(p) > 100 * 1024:
+        problems.append("方图超过 100KB " + p)
+    if im.getexif():
+        problems.append("方图含 EXIF " + p)
+
+for name in detail_pages:
+    s = open(os.path.join(ROOT, name), encoding="utf-8").read()
+    for tag in ['property="og:title"', 'property="og:description"', 'property="og:image"',
+                'property="og:image:width" content="400"',
+                'property="og:image:height" content="400"',
+                'itemprop="name"', 'itemprop="description"', 'itemprop="image"',
+                'name="twitter:card" content="summary_large_image"',
+                'class="wx-share-thumb"', 'aria-hidden="true"', 'width="300" height="300"']:
+        if tag not in s:
+            problems.append("%s 缺 %s" % (name, tag))
+    for tag in ['property="og:image"', 'itemprop="image"', 'class="wx-share-thumb"']:
+        if s.count(tag) != 1:
+            problems.append("%s 重复输出 %s" % (name, tag))
+    for tag in ['<title>', 'rel="canonical"', '<meta name="description"', 'application/ld+json']:
+        if tag not in s:
+            problems.append("%s 丢失保留项 %s" % (name, tag))
+    urls = []
+    for pat in [r'<meta property="og:image" content="([^"]+)"',
+                r'<meta itemprop="image" content="([^"]+)"',
+                r'<img class="wx-share-thumb" src="([^"]+)"']:
+        m = re.search(pat, s)
+        if m:
+            urls.append(m.group(1))
+    if len(urls) != 3 or len(set(urls)) != 1 or not all(u.startswith("https://") for u in urls):
+        problems.append("%s 三处方图地址不一致或不是 HTTPS 绝对地址: %s" % (name, urls))
+    else:
+        rel = urls[0].replace(SITE_URL, "")
+        if not os.path.exists(os.path.join(ROOT, rel)):
+            problems.append("%s 方图本地文件不存在 %s" % (name, rel))
+    if not re.search(r'<body[^>]*>\s*<img class="wx-share-thumb"', s):
+        problems.append("%s 方图不在 body 第一行" % name)
+    if "display:none" in s or re.search(r'wx-share-thumb[^>]*loading=', s):
+        problems.append("%s 首图用了 display:none 或 loading=lazy" % name)
+
+for name in plain_pages:
+    p = os.path.join(ROOT, name)
+    if not os.path.exists(p):
+        problems.append("缺非详情页 " + name)
+        continue
+    s = open(p, encoding="utf-8").read()
+    if "itemprop=" in s or "wx-share-thumb" in s:
+        problems.append("非详情页误带 itemprop / 首图: " + name)
+verify_file = os.path.join(ROOT, "googled740806788de8245.html")
+if os.path.exists(verify_file):
+    vs = open(verify_file, encoding="utf-8").read()
+    if "itemprop=" in vs or "wx-share-thumb" in vs:
+        problems.append("验证文件误带 itemprop / 首图")
 
 
 print("页面数:", len(PAGES))

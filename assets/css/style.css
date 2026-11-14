@@ -614,3 +614,6 @@ table.tbl th,table.tbl td{text-align:center}
 .footer-tech{padding:0 0 10px;font-size:12px}
 .footer-tech img{height:28px;padding:4px 7px}
 .footer-bottom{padding:8px 0 10px;font-size:11.5px}
+
+/* 微信分享卡片首图：移出视口但不隐藏，供爬虫抓图，不改可见布局 */
+.wx-share-thumb{position:absolute;top:0;left:-9999px;width:300px;height:300px;pointer-events:none;z-index:-1}

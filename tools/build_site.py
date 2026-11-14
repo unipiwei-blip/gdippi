@@ -7,6 +7,7 @@
 import os
 import json
 import datetime
+import html
 from case_details import CASE_DETAILS
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -157,6 +158,20 @@ EXTRA_FRIENDS = [
 ]
 
 
+def share_image_url(page):
+    """详情页方形分享图的 HTTPS 绝对地址。"""
+    return SITE_URL + "assets/cases/share-" + page[len("case-"):] + ".jpg"
+
+
+def share_summary(desc, limit=60):
+    """摘要取描述前 60 字，收在最后一个完整分句并去掉结尾标点。"""
+    s = desc[:limit]
+    for i in range(len(s) - 1, max(limit // 2, 0), -1):
+        if s[i] in "，。；！？":
+            return s[:i].rstrip("，。；、：！？,.;:!? 　")
+    return s.rstrip("，。；、：！？,.;:!? 　")
+
+
 def head(title, desc, keywords):
     page = PAGE_KEY
     url = SITE_URL + ("" if page == "index" else page + ".html")
@@ -202,10 +217,25 @@ def head(title, desc, keywords):
             for q, a in FAQ_COLLECTOR[page]]})
     ld = json.dumps({"@context": "https://schema.org", "@graph": graph},
                     ensure_ascii=False, separators=(",", ":"))
+    share_url = share_image_url(page) if is_case else ""
+    short_desc = share_summary(desc) if is_case else desc
+    esc_short = html.escape(short_desc, quote=True) if is_case else desc
+    og_img = share_url if is_case else og
+    og_w, og_h = ("400", "400") if is_case else ("1200", "630")
+    og_itype = "image/jpeg" if is_case else "image/png"
+    itemprop = ""
+    if is_case:
+        itemprop = ('<meta itemprop="name" content="%s">\n'
+                    '<meta itemprop="description" content="%s">\n'
+                    '<meta itemprop="image" content="%s">\n'
+                    % (html.escape(title + " | " + BRAND, quote=True),
+                       esc_short, share_url))
     d = dict(title=title, brand=BRAND, desc=desc, keywords=keywords,
              url=url, og=og, ld=ld, page=page,
              ogtype="article" if is_case else "website",
-             ogalt=title + " | " + BRAND)
+             ogalt=title + " | " + BRAND,
+             ogdesc=esc_short, ogimg=og_img, ogw=og_w, ogh=og_h,
+             ogitype=og_itype, itemprop=itemprop)
     return '''<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -222,17 +252,17 @@ def head(title, desc, keywords):
 <meta property="og:site_name" content="%(brand)s">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:title" content="%(title)s | %(brand)s">
-<meta property="og:description" content="%(desc)s">
+<meta property="og:description" content="%(ogdesc)s">
 <meta property="og:url" content="%(url)s">
-<meta property="og:image" content="%(og)s">
-<meta property="og:image:type" content="image/png">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
+<meta property="og:image" content="%(ogimg)s">
+<meta property="og:image:type" content="%(ogitype)s">
+<meta property="og:image:width" content="%(ogw)s">
+<meta property="og:image:height" content="%(ogh)s">
 <meta property="og:image:alt" content="%(ogalt)s">
-<meta name="twitter:card" content="summary_large_image">
+%(itemprop)s<meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="%(title)s | %(brand)s">
-<meta name="twitter:description" content="%(desc)s">
-<meta name="twitter:image" content="%(og)s">
+<meta name="twitter:description" content="%(ogdesc)s">
+<meta name="twitter:image" content="%(ogimg)s">
 <meta name="theme-color" content="#1a6bff">
 <link rel="icon" href="favicon.ico" type="image/x-icon">
 <link rel="apple-touch-icon" href="assets/img/icon-192.png">
@@ -312,7 +342,11 @@ def footer():
 def wrap(title, desc, keywords, active, body):
     global PAGE_KEY
     PAGE_KEY = active
-    return (head(title, desc, keywords) + topbar() + navbar() +
+    thumb = ""
+    if active.startswith("case-"):
+        thumb = ('<img class="wx-share-thumb" src="%s" alt="" width="300" height="300" aria-hidden="true">\n'
+                 % share_image_url(active))
+    return (head(title, desc, keywords) + thumb + topbar() + navbar() +
             "<main>\n" + body + "\n</main>\n" + footer() + "</body>\n</html>\n")
 
 
