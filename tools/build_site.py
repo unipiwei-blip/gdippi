@@ -248,6 +248,7 @@ def head(title, desc, keywords):
 <meta name="keywords" content="%(keywords)s">
 <meta name="author" content="%(brand)s">
 <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="baidu-site-verification" content="codeva-TuJ6gRj8il">
 <link rel="canonical" href="%(url)s">
 <link rel="sitemap" type="application/xml" title="Sitemap" href="sitemap.xml">
 <meta property="og:type" content="%(ogtype)s">

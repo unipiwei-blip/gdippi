@@ -300,6 +300,15 @@ for name in ["404.html", "googled740806788de8245.html"]:
     if "itemprop=" in s or "wx-share-thumb" in s or 'property="og:' in s:
         problems.append("%s 误带分享标签" % name)
 
+# 第十五轮：百度站点验证标签（全站正常页统一输出，404 页不带）
+BAIDU_META = '<meta name="baidu-site-verification" content="codeva-TuJ6gRj8il">'
+for name in PAGES:
+    if BAIDU_META not in open(os.path.join(ROOT, name), encoding="utf-8").read():
+        problems.append("%s 缺百度站点验证标签" % name)
+if os.path.exists(os.path.join(ROOT, "404.html")):
+    if BAIDU_META in open(os.path.join(ROOT, "404.html"), encoding="utf-8").read():
+        problems.append("404.html 不应带百度站点验证标签")
+
 print("页面数:", len(PAGES))
 print("问题数:", len(problems))
 for p in problems:
