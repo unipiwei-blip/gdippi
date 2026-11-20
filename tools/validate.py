@@ -309,6 +309,14 @@ if os.path.exists(os.path.join(ROOT, "404.html")):
     if BAIDU_META in open(os.path.join(ROOT, "404.html"), encoding="utf-8").read():
         problems.append("404.html 不应带百度站点验证标签")
 
+# 备案号：全站页脚版权行统一展示，链接工信部备案系统
+ICP_TEXT = "粤ICP备2024239047号"
+for name in PAGES + ["404.html"]:
+    p = os.path.join(ROOT, name)
+    s = open(p, encoding="utf-8").read() if os.path.exists(p) else ""
+    if ICP_TEXT not in s or "https://beian.miit.gov.cn/" not in s:
+        problems.append("%s 缺备案号或工信部链接" % name)
+
 print("页面数:", len(PAGES))
 print("问题数:", len(problems))
 for p in problems:

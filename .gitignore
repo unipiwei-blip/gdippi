@@ -8,3 +8,7 @@ Thumbs.db
 dist/
 
 assets/img/qrcode-source.png
+
+# 百度普通收录推送脚本含账号 token，不进公开仓库
+baidu_push.py
+gd_ippi_com_cn_pushed.txt
